@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (lint + tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ruff
+
+      - name: Lint (ruff)
+        run: ruff check app || true   # advisory; does not fail the build yet
+
+      - name: Run tests (demo mode — no DB/Redis required)
+        env:
+          APP_ENV: development
+        run: pytest -q
+
+  frontend:
+    name: Frontend (JS syntax)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Syntax-check all frontend JS
+        run: |
+          for f in frontend/assets/js/*.js frontend/assets/js/data/*.js; do
+            node --check "$f" && echo "OK  $f"
+          done
+
+  sql:
+    name: Database (schema applies)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: vpid
+          POSTGRES_USER: vpid_app
+          POSTGRES_PASSWORD: vpid_pass
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vpid_app -d vpid"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply schema + seed
+        env:
+          PGPASSWORD: vpid_pass
+        run: |
+          psql -h localhost -U vpid_app -d vpid -v ON_ERROR_STOP=1 -f database/schema.sql
+          psql -h localhost -U vpid_app -d vpid -v ON_ERROR_STOP=1 -f database/seed.sql
+          psql -h localhost -U vpid_app -d vpid -c "SELECT count(*) AS fuentes FROM fuentes;"

@@ -1,0 +1,40 @@
+# ============================================================================
+#  VPID backend — tooling configuration (ruff lint/format + pytest)
+# ============================================================================
+[project]
+name = "vpid-backend"
+version = "1.0.0"
+description = "Venezuela Political Intelligence Dashboard — OSINT backend (public sources only)"
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["app", "tests"]
+extend-exclude = ["storage"]
+
+[tool.ruff.lint]
+# E/F = pyflakes+pycodestyle, I = isort, UP = pyupgrade, B = bugbear,
+# C4 = comprehensions, SIM = simplify, N = pep8-naming.
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "N"]
+ignore = [
+    "E501",   # line length handled by formatter
+    "B008",   # FastAPI dependency-injection uses callables in defaults (Depends/Query)
+    "N803",   # allow Spanish/domain arg names
+    "N806",   # allow non-lowercase local vars where domain dictates
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]            # re-exports
+"app/models.py" = ["N815"]          # ORM mirrors snake_case DB columns
+"tests/*" = ["S101"]                # asserts allowed in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
