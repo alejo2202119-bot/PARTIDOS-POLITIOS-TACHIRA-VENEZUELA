@@ -262,6 +262,44 @@
   .modus{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:12px;padding:13px 15px}
   .modus .mn{font-size:13.5px;font-weight:800}
   .modus .md{font-size:12px;color:var(--muted);line-height:1.46;margin-top:5px}
+
+  /* ===================== GRÁFICAS (SVG/CSS puro) ===================== */
+  .chart-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+  .chart-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 18px;overflow:hidden}
+  .chart-card.wide{grid-column:1/-1}
+  .chart-title{font-size:14px;font-weight:800;color:var(--txt);margin-bottom:3px;display:flex;align-items:center;gap:7px}
+  .chart-sub{font-size:11px;color:var(--muted2);margin-bottom:14px;line-height:1.4}
+  .donut-wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .donut-svg{position:relative;flex:0 0 auto}
+  .donut-center{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+  .donut-center .dc-v{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1}
+  .donut-center .dc-l{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+  .donut-svg circle{transition:stroke-dasharray 1s ease}
+  .legend{display:flex;flex-direction:column;gap:9px;flex:1;min-width:140px}
+  .legend-item{display:flex;align-items:center;gap:9px;font-size:12.5px}
+  .legend-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+  .legend-item .lt{color:var(--txt);font-weight:600;flex:1}
+  .legend-item .lv{color:var(--txt);font-weight:800;font-variant-numeric:tabular-nums}
+  /* barras horizontales */
+  .hbars{display:flex;flex-direction:column;gap:13px;margin-top:4px}
+  .hbar-row{display:block}
+  .hbar-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+  .hbar-label{font-size:12.5px;font-weight:600;color:var(--txt)}
+  .hbar-val{font-size:13px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+  .hbar-track{height:11px;border-radius:99px;background:var(--panel2);overflow:hidden;position:relative}
+  .hbar-fill{height:100%;border-radius:99px;width:0;transition:width 1.1s cubic-bezier(.16,1,.3,1)}
+  .hbar-note{font-size:10.5px;color:var(--muted2);margin-top:3px}
+  /* gauge semicircular */
+  .gauge-wrap{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .gauge-svg path.g-fill{transition:stroke-dashoffset 1.2s cubic-bezier(.16,1,.3,1)}
+  .gauge-meta .gv{font-size:30px;font-weight:800;letter-spacing:-1px}
+  .gauge-meta .gl{font-size:12px;color:var(--muted);line-height:1.4;max-width:200px;margin-top:3px}
+  /* KPIs país */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:15px 16px;border-left:4px solid var(--accent)}
+  .kpi .kv{font-size:25px;font-weight:800;letter-spacing:-.5px}
+  .kpi .kl{font-size:12px;color:var(--txt);font-weight:600;margin-top:3px;line-height:1.3}
+  .kpi .ks{font-size:10px;color:var(--muted2);margin-top:6px;text-transform:uppercase;letter-spacing:.4px}
 </style>
 </head>
 <body>
@@ -296,16 +334,17 @@
       <span class="pill" id="statusPill"><span class="dot off" id="statusDot"></span><span id="statusTxt">Inicializando…</span></span>
       <span class="pill"><span>⏱</span><span id="countdown" class="mono">--:--</span></span>
       <span class="pill"><span>🕒 Últ.:</span><span id="lastUpdate" class="mono">—</span></span>
-      <span class="pill" style="font-size:10px;color:var(--muted2);padding:5px 9px">v4 · jun 2026</span>
+      <span class="pill" style="font-size:10px;color:var(--muted2);padding:5px 9px">v5 · gráficas</span>
       <button class="btn" id="refreshBtn" style="padding:8px 14px;font-size:13px">↻ Refrescar</button>
       <button class="btn ghost" id="logoutBtn" style="padding:8px 12px;font-size:13px">Salir</button>
     </div>
     <nav class="navbar" aria-label="Navegación del panel">
       <div class="navbar-row">
         <button class="navbtn active" data-view="resumen">📌 Resumen diario</button>
-        <button class="navbtn" data-view="stats">📊 Indicadores</button>
-        <button class="navbtn" data-view="encuestas">📈 Encuestas</button>
+        <button class="navbtn" data-view="encuestas">📈 Encuestas y gráficas</button>
         <button class="navbtn" data-view="apoyo">🗳️ Apoyo MCM</button>
+        <button class="navbtn" data-view="economia">📉 Economía y país</button>
+        <button class="navbtn" data-view="stats">📊 Indicadores Táchira</button>
         <button class="navbtn" data-view="red">📡 Red comunicacional</button>
         <button class="navbtn" data-view="crono">🗓️ Cronograma</button>
         <button class="navbtn" data-view="partidos">🏛️ Partidos</button>
@@ -324,8 +363,10 @@
     <div class="view active" id="view-resumen">
       <div class="section-title"><span class="bar"></span> 📌 Resumen Diario · Cómo va la oposición</div>
       <div id="summary"></div>
+      <div class="sub-h">Panorama en gráficas</div>
+      <div class="chart-row" id="resumenCharts"></div>
       <div class="view-foot">
-        Datos verificados · Fuentes: Meganálisis, Infobae, Efecto Cocuyo, NTN24, resultadosconvzla.com ·
+        Datos verificados · Fuentes: Meganálisis, Centro Carter, Infobae, Efecto Cocuyo, NTN24, resultadosconvzla.com ·
         Actualizado: junio 2026. Este panel usa únicamente información pública.
       </div>
     </div>
@@ -340,9 +381,11 @@
       </div>
     </div>
 
-    <!-- ── VISTA: ENCUESTAS ── -->
+    <!-- ── VISTA: ENCUESTAS Y GRÁFICAS ── -->
     <div class="view" id="view-encuestas">
-      <div class="section-title"><span class="bar"></span> 📈 Encuestas, Indicadores y Resultados Electorales</div>
+      <div class="section-title"><span class="bar"></span> 📈 Encuestas, Gráficas y Resultados Electorales</div>
+      <div class="chart-row" id="encChartsTop"></div>
+      <div class="sub-h">Indicadores de opinión pública</div>
       <div class="poll-grid" id="polls"></div>
       <div class="view-foot" id="pollsFoot"></div>
     </div>
@@ -350,8 +393,23 @@
     <!-- ── VISTA: APOYO A MCM ── -->
     <div class="view" id="view-apoyo">
       <div class="section-title"><span class="bar"></span> 🗳️ Quiénes apoyan a María Corina Machado</div>
+      <div class="chart-row" id="apoyoCharts"></div>
+      <div class="sub-h">Mapa de partidos por nivel de respaldo</div>
       <div class="supp-cols" id="support"></div>
       <div class="view-foot" id="supportFoot"></div>
+    </div>
+
+    <!-- ── VISTA: ECONOMÍA Y PAÍS ── -->
+    <div class="view" id="view-economia">
+      <div class="section-title"><span class="bar"></span> 📉 Economía y Situación del País</div>
+      <div class="sub-h">Indicadores socioeconómicos clave (2026)</div>
+      <div class="kpi-grid" id="countryKpis"></div>
+      <div class="sub-h">Proyecciones de inflación 2026 según fuente</div>
+      <div class="chart-row" id="econCharts"></div>
+      <div class="view-foot">
+        Fuentes: BCV, FMI, PNUD, Ecoanalítica, ENCOVI-UCAB, Observatorio de la Diáspora Venezolana ·
+        Las proyecciones de inflación varían ampliamente según el organismo · Corte: junio 2026.
+      </div>
     </div>
 
     <!-- ── VISTA: RED COMUNICACIONAL ── -->
@@ -630,11 +688,55 @@ const MODUS = {
 };
 
 /* ============================================================================
+   DATOS PARA GRÁFICAS (cifras verificadas, con fuente y fecha)
+   ============================================================================ */
+// Resultados 28-J 2024 según las actas recopiladas por la oposición (73,2% de actas)
+const ELECTION = [
+  { label:"Edmundo González", value:67, color:"#22c55e" },
+  { label:"Nicolás Maduro",    value:30, color:"#ef4444" },
+  { label:"Otros / nulos",     value:3,  color:"#64748b" },
+];
+// Verificación del resultado de González según distintas fuentes (% de votos)
+const VERIFICATION = [
+  { label:"Centro Carter (verificación)", value:70, color:"#22d3ee", note:"Revisó 24.533 actas (81,7%)" },
+  { label:"Oposición · actas publicadas", value:67, color:"#22c55e", note:"73,2% de las actas" },
+  { label:"CNE (sin publicar actas)",     value:43, color:"#ef4444", note:"Resultado oficial cuestionado" },
+];
+// Apoyo regional a MCM como próxima presidenta (% que la prefiere)
+const REGIONAL = [
+  { label:"Colombia",  value:48, color:"#fbbf24" },
+  { label:"Brasil",    value:31, color:"#34d399" },
+  { label:"Argentina", value:25, color:"#60a5fa" },
+];
+// Distribución de partidos PUD por nivel de apoyo a MCM (conteo)
+const SUPPORT_DIST = [
+  { label:"Apoyo firme",  value:7, color:"#22c55e" },
+  { label:"Con matices",  value:3, color:"#f59e0b" },
+  { label:"Otros sectores", value:2, color:"#64748b" },
+];
+// Proyecciones de inflación 2026 (%, varían por organismo)
+const INFLATION = [
+  { label:"BCV · acumulada Q1 2026", value:71.8,  color:"#22d3ee", note:"Dato reportado (real)" },
+  { label:"Ecoanalítica · cierre 2026", value:192, color:"#34d399", note:"Proyección" },
+  { label:"PNUD · cierre 2026",      value:271.6, color:"#fbbf24", note:"Proyección" },
+  { label:"FMI · cierre 2026",       value:682.1, color:"#ef4444", note:"Proyección" },
+];
+// KPIs país (2026)
+const COUNTRY = [
+  { v:"+9 M",  l:"Migrantes venezolanos en el mundo", s:"Obs. Diáspora Venezolana" },
+  { v:"55%",   l:"Pobreza multidimensional", s:"ENCOVI-UCAB 2025" },
+  { v:"58%",   l:"Migrantes que envían remesas", s:"Obs. Diáspora 2025" },
+  { v:"−64%",  l:"PIB aún por debajo del nivel de 2012", s:"Finanzas Digital 2026" },
+  { v:"~20%",  l:"Inflación estimada en dólares 2026", s:"J. Palacios · may 2026" },
+  { v:"+500",  l:"Presos políticos aún detenidos", s:"FIDH / Foro Penal" },
+];
+
+/* ============================================================================
    UTILIDADES
    ============================================================================ */
 const $ = s => document.querySelector(s);
 const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
-const esc  = s => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc  = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const xLink = (handle,name) => handle ? `https://x.com/${handle}` : `https://x.com/search?q=${encodeURIComponent(name)}&f=user`;
 
 function fmtDateTime(d){
@@ -862,6 +964,7 @@ function renderStatic(){
   renderSupport();
   renderComms();
   renderTimeline();
+  renderCharts();
   $("#stats").innerHTML = STATS.map(s=>
     `<div class="stat"><div class="v">${esc(s.v)}</div><div class="l">${esc(s.l)}</div><div class="src">Fuente: ${esc(s.src)}</div></div>`
   ).join("");
@@ -1011,12 +1114,177 @@ function renderTimeline(){
 }
 
 /* ============================================================================
+   GRÁFICAS — generadores SVG/HTML puros (sin librerías externas)
+   ============================================================================ */
+// Donut a partir de segmentos [{label,value,color}]
+function donutSVG(segments, opts={}){
+  const size = opts.size||168, thickness = opts.thickness||24;
+  const total = segments.reduce((s,x)=>s+x.value,0) || 1;
+  const r = (size - thickness)/2, cx = size/2, cy = size/2;
+  const circ = 2*Math.PI*r;
+  let offset = 0;
+  const arcs = segments.map(s=>{
+    const len = (s.value/total)*circ;
+    const c = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${thickness}"
+      stroke-dasharray="${len.toFixed(2)} ${(circ-len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"
+      transform="rotate(-90 ${cx} ${cy})" stroke-linecap="butt"/>`;
+    offset += len; return c;
+  }).join("");
+  const center = opts.centerV!=null
+    ? `<div class="donut-center"><div><div class="dc-v">${esc(opts.centerV)}</div><div class="dc-l">${esc(opts.centerL||"")}</div></div></div>`
+    : "";
+  return `<div class="donut-svg" style="width:${size}px;height:${size}px">
+      <svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--panel2)" stroke-width="${thickness}"/>
+        ${arcs}
+      </svg>${center}
+    </div>`;
+}
+function legendHTML(segments, unit=""){
+  return `<div class="legend">${segments.map(s=>`
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${s.color}"></span>
+      <span class="lt">${esc(s.label)}</span>
+      <span class="lv">${esc(s.value)}${esc(unit)}</span>
+    </div>`).join("")}</div>`;
+}
+// Barras horizontales [{label,value,color,note}] — max para escalar
+function hbarsHTML(rows, opts={}){
+  const max = opts.max || Math.max(...rows.map(r=>r.value), 1);
+  const unit = opts.unit!=null ? opts.unit : "%";
+  return `<div class="hbars">${rows.map(r=>{
+    const w = Math.max(0, Math.min(100, (r.value/max)*100));
+    const col = r.color || "var(--accent)";
+    return `<div class="hbar-row">
+      <div class="hbar-head"><span class="hbar-label">${esc(r.label)}</span><span class="hbar-val">${esc(r.value)}${esc(unit)}</span></div>
+      <div class="hbar-track"><div class="hbar-fill" data-w="${w.toFixed(1)}" style="background:${col}"></div></div>
+      ${r.note?`<div class="hbar-note">${esc(r.note)}</div>`:""}
+    </div>`;
+  }).join("")}</div>`;
+}
+// Gauge semicircular (0-100)
+function gaugeSVG(pct, opts={}){
+  const w=200, h=118, r=82, cx=100, cy=100, sw=18;
+  const p = Math.max(0, Math.min(100, pct));
+  const semi = Math.PI*r;                       // longitud del semicírculo
+  const off = semi*(1 - p/100);
+  const col = opts.color || "#22d3ee";
+  const arc = `M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`;
+  return `<svg class="gauge-svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+    <path d="${arc}" fill="none" stroke="var(--panel2)" stroke-width="${sw}" stroke-linecap="round"/>
+    <path class="g-fill" d="${arc}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"
+      stroke-dasharray="${semi.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"/>
+  </svg>`;
+}
+// Dispara la animación de las barras (width 0 → destino)
+function animateBars(scope){
+  requestAnimationFrame(()=>{
+    (scope||document).querySelectorAll(".hbar-fill").forEach(f=>{
+      f.style.width = (f.dataset.w||0)+"%";
+    });
+  });
+}
+
+/* ============================================================================
+   RENDER — GRÁFICAS POR VISTA
+   ============================================================================ */
+function renderCharts(){
+  // Resumen: gauge MCM + donut elección
+  const rc = $("#resumenCharts");
+  if(rc){
+    rc.innerHTML = `
+      <div class="chart-card">
+        <div class="chart-title">📊 Resultado 28-J 2024 (actas)</div>
+        <div class="chart-sub">Según las actas recopiladas por la oposición</div>
+        <div class="donut-wrap">
+          ${donutSVG(ELECTION,{centerV:"67%",centerL:"E. González"})}
+          ${legendHTML(ELECTION,"%")}
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🟢 Liderazgo de María Corina</div>
+        <div class="chart-sub">Aprobación según Meganálisis (2026)</div>
+        <div class="gauge-wrap">
+          ${gaugeSVG(72,{color:"#22c55e"})}
+          <div class="gauge-meta"><div class="gv">72%</div><div class="gl">de aprobación · figura opositora con mayor respaldo</div></div>
+        </div>
+      </div>`;
+  }
+  // Encuestas: verificación + regional
+  const et = $("#encChartsTop");
+  if(et){
+    et.innerHTML = `
+      <div class="chart-card">
+        <div class="chart-title">🔍 Verificación del triunfo de González</div>
+        <div class="chart-sub">% de votos atribuido a González por cada fuente (28-J 2024)</div>
+        ${hbarsHTML(VERIFICATION)}
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🌎 Apoyo regional a María Corina</div>
+        <div class="chart-sub">% que considera que debería ser la próxima presidenta</div>
+        ${hbarsHTML(REGIONAL)}
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🗳️ Resultado 28-J 2024 (actas oposición)</div>
+        <div class="chart-sub">Distribución de votos · 73,2% de actas recopiladas</div>
+        <div class="donut-wrap">
+          ${donutSVG(ELECTION,{centerV:"67%",centerL:"González"})}
+          ${legendHTML(ELECTION,"%")}
+        </div>
+      </div>`;
+  }
+  // Apoyo: donut de distribución de partidos
+  const ac = $("#apoyoCharts");
+  if(ac){
+    ac.innerHTML = `
+      <div class="chart-card">
+        <div class="chart-title">🧩 Partidos PUD por nivel de apoyo</div>
+        <div class="chart-sub">Distribución de las organizaciones de la Plataforma Unitaria</div>
+        <div class="donut-wrap">
+          ${donutSVG(SUPPORT_DIST,{centerV:"12",centerL:"partidos"})}
+          ${legendHTML(SUPPORT_DIST,"")}
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">🟢 Respaldo a la candidatura unitaria</div>
+        <div class="chart-sub">Proporción de partidos que respaldaron a MCM/González</div>
+        <div class="gauge-wrap">
+          ${gaugeSVG(75,{color:"#22c55e"})}
+          <div class="gauge-meta"><div class="gv">7 de 10</div><div class="gl">partidos jugaron cuadro cerrado con María Corina</div></div>
+        </div>
+      </div>`;
+  }
+  // Economía: KPIs + inflación
+  const ck = $("#countryKpis");
+  if(ck){
+    ck.innerHTML = COUNTRY.map(k=>`
+      <div class="kpi"><div class="kv">${esc(k.v)}</div><div class="kl">${esc(k.l)}</div><div class="ks">${esc(k.s)}</div></div>
+    `).join("");
+  }
+  const ec = $("#econCharts");
+  if(ec){
+    ec.innerHTML = `
+      <div class="chart-card wide">
+        <div class="chart-title">📉 Proyecciones de inflación 2026</div>
+        <div class="chart-sub">El dato del BCV es acumulado real de Q1; el resto son proyecciones de cierre de año (escala relativa al máximo)</div>
+        ${hbarsHTML(INFLATION,{max:700,unit:"%"})}
+      </div>`;
+  }
+  animateBars();
+}
+
+/* ============================================================================
    SPA — NAVEGACIÓN POR VISTAS (una vista activa a la vez)
    ============================================================================ */
 function showView(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   const el = document.getElementById("view-"+id);
-  if(el) el.classList.add("active");
+  if(el){
+    el.classList.add("active");
+    // Re-anima las barras de la vista al mostrarse (efecto al entrar)
+    el.querySelectorAll(".hbar-fill").forEach(f=>{ f.style.width="0%"; });
+    animateBars(el);
+  }
   document.querySelectorAll(".navbtn").forEach(b=>
     b.classList.toggle("active", b.dataset.view===id)
   );
