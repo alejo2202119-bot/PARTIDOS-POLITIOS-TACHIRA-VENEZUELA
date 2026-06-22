@@ -174,26 +174,27 @@
   .navbar::-webkit-scrollbar{height:0}
   .navbar-row{display:flex;gap:8px;padding:10px 20px;max-width:1500px;margin:0 auto;white-space:nowrap}
   .navbtn{
-    flex:0 0 auto;font-size:13px;font-weight:700;
-    color:#cbd5e1;                            /* visible claro sobre fondo oscuro */
+    flex:0 0 auto;font-size:13px;font-weight:700;font-family:inherit;
+    color:#cbd5e1;
     background:rgba(255,255,255,.07);
     border:1px solid rgba(255,255,255,.18);
     border-radius:99px;padding:9px 16px;cursor:pointer;transition:.18s;
     display:inline-flex;align-items:center;gap:6px;
-    text-shadow:none;letter-spacing:.2px;
+    letter-spacing:.2px;-webkit-appearance:none;appearance:none;
   }
-  .navbtn:hover{
-    color:#fff;
-    border-color:var(--accent);
-    background:rgba(34,211,238,.14);
-  }
+  .navbtn:hover{color:#fff;border-color:var(--accent);background:rgba(34,211,238,.14)}
   .navbtn.active{
     color:#04121a;
     background:linear-gradient(135deg,#22d3ee,#6366f1);
     border-color:transparent;
-    box-shadow:0 0 12px rgba(34,211,238,.35);
+    box-shadow:0 0 14px rgba(34,211,238,.4);
   }
-  .section-title{scroll-margin-top:130px}
+  /* ---- SPA views ---- */
+  .view{display:none}
+  .view.active{display:block;animation:fadeIn .22s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .view-foot{margin-top:16px;font-size:11px;color:var(--muted2);font-style:italic;padding:0 4px;line-height:1.7;border-top:1px solid var(--border);padding-top:12px}
+  .section-title{margin:0 4px 16px}
   .sub-h{font-size:12.5px;font-weight:700;color:var(--muted);margin:18px 4px 10px;letter-spacing:.3px}
 
   /* ===================== RESUMEN DIARIO / BRIEFING ===================== */
@@ -300,17 +301,17 @@
       <button class="btn ghost" id="logoutBtn" style="padding:8px 12px;font-size:13px">Salir</button>
     </div>
     <nav class="navbar" aria-label="Navegación del panel">
-      <div class="navbar-row" id="navRow">
-        <a class="navbtn" href="#sec-resumen">📌 Resumen diario</a>
-        <a class="navbtn" href="#sec-stats">📊 Indicadores Táchira</a>
-        <a class="navbtn" href="#sec-encuestas">📈 Encuestas</a>
-        <a class="navbtn" href="#sec-apoyo">🗳️ Apoyo a M. Corina</a>
-        <a class="navbtn" href="#sec-red">📡 Red comunicacional</a>
-        <a class="navbtn" href="#sec-crono">🗓️ Cronograma</a>
-        <a class="navbtn" href="#sec-partidos">🏛️ Partidos</a>
-        <a class="navbtn" href="#sec-noticias">📰 Noticias</a>
-        <a class="navbtn" href="#sec-directorio">🔗 Directorio</a>
-        <a class="navbtn" href="#sec-orbita">🛰️ Órbita MCM</a>
+      <div class="navbar-row">
+        <button class="navbtn" data-view="resumen">📌 Resumen diario</button>
+        <button class="navbtn" data-view="stats">📊 Indicadores</button>
+        <button class="navbtn" data-view="encuestas">📈 Encuestas</button>
+        <button class="navbtn" data-view="apoyo">🗳️ Apoyo MCM</button>
+        <button class="navbtn" data-view="red">📡 Red comunicacional</button>
+        <button class="navbtn" data-view="crono">🗓️ Cronograma</button>
+        <button class="navbtn" data-view="partidos">🏛️ Partidos</button>
+        <button class="navbtn" data-view="noticias">📰 Noticias</button>
+        <button class="navbtn" data-view="directorio">🔗 Directorio</button>
+        <button class="navbtn" data-view="orbita">🛰️ Órbita MCM</button>
       </div>
     </nav>
   </header>
@@ -318,74 +319,108 @@
   <div id="offline">⚠ MODO OFFLINE — mostrando el último fetch guardado. Reintentando al recuperar conexión…</div>
 
   <main>
-    <!-- RESUMEN DIARIO -->
-    <div class="section-title" id="sec-resumen"><span class="bar"></span> 📌 Resumen Diario · Cómo va la oposición</div>
-    <div id="summary"></div>
 
-    <!-- STATS -->
-    <div class="section-title" id="sec-stats"><span class="bar"></span> 📊 Panel de Indicadores · Táchira <span style="font-weight:500;color:var(--muted2);font-size:11px;text-transform:none;letter-spacing:0">(reporte 7 may 2026)</span></div>
-    <div class="stats" id="stats"></div>
-
-    <!-- ENCUESTAS E INDICADORES -->
-    <div class="section-title" id="sec-encuestas"><span class="bar"></span> 📈 Encuestas, Indicadores y Resultados</div>
-    <div class="poll-grid" id="polls"></div>
-    <div class="dir-foot" id="pollsFoot"></div>
-
-    <!-- APOYO A MARÍA CORINA -->
-    <div class="section-title" id="sec-apoyo"><span class="bar"></span> 🗳️ Quiénes apoyan a María Corina Machado</div>
-    <div class="supp-cols" id="support"></div>
-    <div class="dir-foot" id="supportFoot"></div>
-
-    <!-- RED COMUNICACIONAL -->
-    <div class="section-title" id="sec-red"><span class="bar"></span> 📡 Red Comunicacional · Cómo convencen</div>
-    <div class="comm-grid" id="comms"></div>
-    <div class="sub-h">Tácticas de persuasión y movilización</div>
-    <div class="tactics" id="tactics"></div>
-
-    <!-- CRONOGRAMA / CÓMO OPERAN -->
-    <div class="section-title" id="sec-crono"><span class="bar"></span> 🗓️ Cronograma y Cómo Opera Cada Partido</div>
-    <div class="sub-h">Línea de tiempo de la ruta opositora</div>
-    <div class="tl" id="timeline"></div>
-    <div class="sub-h">Modus operandi de cada partido</div>
-    <div class="modus-grid" id="modus"></div>
-
-    <!-- PARTIES -->
-    <div class="section-title" id="sec-partidos"><span class="bar"></span> 🏛️ 8 Partidos de la Plataforma Unitaria Democrática</div>
-    <div class="grid" id="parties"></div>
-
-    <!-- GLOBAL NEWS -->
-    <div class="section-title" id="sec-noticias"><span class="bar"></span> 📰 Noticias Globales PUD · 10 más recientes</div>
-    <div class="feed" id="globalNews"></div>
-
-    <!-- DIRECTORIO DIGITAL -->
-    <div class="section-title" id="sec-directorio"><span class="bar"></span> 🔗 Directorio Digital · Redes y Medios</div>
-    <div class="dir-bar">
-      <span class="upd" id="dirUpdated">Actualizando…</span>
-      <button class="btn" id="dirRefreshBtn" style="padding:7px 12px;font-size:12.5px">🔄 Actualizar ahora</button>
-    </div>
-    <div id="directory"></div>
-    <div class="dir-foot" id="dirFoot">
-      Corte de seguidores: junio 2026 · Cifras aproximadas · Feeds actualizados automáticamente cada 15 min ·
-      Algunos medios pueden requerir VPN desde Venezuela.
-    </div>
-
-    <!-- ÓRBITA DIGITAL MCM -->
-    <div class="section-title" id="sec-orbita"><span class="bar"></span> 🛰️ Órbita Digital MCM · Táchira</div>
-    <div id="orbita"></div>
-    <div class="dir-foot">
-      Enlaces verificados y activos · corte junio 2026 · Cifras de seguidores aproximadas ·
-      Todos los perfiles marcados ✓ VERIFICADO son cuentas oficiales públicas.
-    </div>
-
-    <footer>
-      <div><b>Fuentes monitoreadas (RSS públicos):</b></div>
-      <div class="src-list" id="srcList"></div>
-      <div style="margin-top:12px">
-        Este panel procesa exclusivamente <b>información pública</b> (titulares y enlaces de medios vía RSS).
-        Los datos se almacenan localmente en tu navegador (localStorage), no se envían a ningún servidor.
-        Uso responsable: herramienta de análisis de cobertura mediática, no de vigilancia de personas privadas.
+    <!-- ── VISTA: RESUMEN DIARIO (predeterminada) ── -->
+    <div class="view" id="view-resumen">
+      <div class="section-title"><span class="bar"></span> 📌 Resumen Diario · Cómo va la oposición</div>
+      <div id="summary"></div>
+      <div class="view-foot">
+        Datos verificados · Fuentes: Meganálisis, Infobae, Efecto Cocuyo, NTN24, resultadosconvzla.com ·
+        Actualizado: junio 2026. Este panel usa únicamente información pública.
       </div>
-    </footer>
+    </div>
+
+    <!-- ── VISTA: INDICADORES TÁCHIRA ── -->
+    <div class="view" id="view-stats">
+      <div class="section-title"><span class="bar"></span> 📊 Panel de Indicadores · Estado Táchira</div>
+      <div class="stats" id="stats"></div>
+      <div class="view-foot">
+        OVCS = Observatorio Venezolano de Conflictividad Social · Foro Penal Venezolano · CIDH · BCV ·
+        Cifras correspondientes al período ene–may 2026 según reportes publicados.
+      </div>
+    </div>
+
+    <!-- ── VISTA: ENCUESTAS ── -->
+    <div class="view" id="view-encuestas">
+      <div class="section-title"><span class="bar"></span> 📈 Encuestas, Indicadores y Resultados Electorales</div>
+      <div class="poll-grid" id="polls"></div>
+      <div class="view-foot" id="pollsFoot"></div>
+    </div>
+
+    <!-- ── VISTA: APOYO A MCM ── -->
+    <div class="view" id="view-apoyo">
+      <div class="section-title"><span class="bar"></span> 🗳️ Quiénes apoyan a María Corina Machado</div>
+      <div class="supp-cols" id="support"></div>
+      <div class="view-foot" id="supportFoot"></div>
+    </div>
+
+    <!-- ── VISTA: RED COMUNICACIONAL ── -->
+    <div class="view" id="view-red">
+      <div class="section-title"><span class="bar"></span> 📡 Red Comunicacional · Cómo convencen</div>
+      <div class="comm-grid" id="comms"></div>
+      <div class="sub-h">Tácticas de persuasión y movilización ciudadana</div>
+      <div class="tactics" id="tactics"></div>
+      <div class="view-foot">
+        Fuentes: resultadosconvzla.com, FLACSO Ecuador (Acción noviolenta), Newtral.es, El Nacional ·
+        El documental Red 600K compite en Cannes Lions 2026.
+      </div>
+    </div>
+
+    <!-- ── VISTA: CRONOGRAMA ── -->
+    <div class="view" id="view-crono">
+      <div class="section-title"><span class="bar"></span> 🗓️ Cronograma · Ruta de la oposición y cómo opera cada partido</div>
+      <div class="sub-h">Línea de tiempo verificada</div>
+      <div class="tl" id="timeline"></div>
+      <div class="sub-h">Modus operandi por partido</div>
+      <div class="modus-grid" id="modus"></div>
+      <div class="view-foot">Fuentes: Efecto Cocuyo, El Estímulo, Vente Venezuela org, NTN24 · Corte: junio 2026.</div>
+    </div>
+
+    <!-- ── VISTA: PARTIDOS PUD ── -->
+    <div class="view" id="view-partidos">
+      <div class="section-title"><span class="bar"></span> 🏛️ 8 Partidos de la Plataforma Unitaria Democrática</div>
+      <div class="grid" id="parties"></div>
+      <div class="view-foot">Noticias cargadas vía RSS público · Se actualizan automáticamente cada hora.</div>
+    </div>
+
+    <!-- ── VISTA: NOTICIAS ── -->
+    <div class="view" id="view-noticias">
+      <div class="section-title"><span class="bar"></span> 📰 Noticias PUD · Más recientes de los feeds</div>
+      <div class="feed" id="globalNews"></div>
+      <div style="margin-top:20px">
+        <div class="sub-h">Fuentes RSS monitoreadas</div>
+        <div class="src-list" id="srcList"></div>
+      </div>
+      <div class="view-foot">
+        Procesando exclusivamente <b>información pública</b> (titulares y enlaces vía RSS) ·
+        Los datos se guardan localmente, no se envían a ningún servidor · Actualización: cada hora.
+      </div>
+    </div>
+
+    <!-- ── VISTA: DIRECTORIO DIGITAL ── -->
+    <div class="view" id="view-directorio">
+      <div class="section-title"><span class="bar"></span> 🔗 Directorio Digital · Redes y Medios</div>
+      <div class="dir-bar">
+        <span class="upd" id="dirUpdated">Actualizando…</span>
+        <button class="btn" id="dirRefreshBtn" style="padding:7px 12px;font-size:12.5px">🔄 Actualizar ahora</button>
+      </div>
+      <div id="directory"></div>
+      <div class="view-foot">
+        Corte: junio 2026 · Cifras de seguidores aproximadas · Feeds actualizados automáticamente cada 15 min ·
+        Algunos medios pueden requerir VPN desde Venezuela.
+      </div>
+    </div>
+
+    <!-- ── VISTA: ÓRBITA MCM ── -->
+    <div class="view" id="view-orbita">
+      <div class="section-title"><span class="bar"></span> 🛰️ Órbita Digital MCM · Táchira</div>
+      <div id="orbita"></div>
+      <div class="view-foot">
+        Enlaces verificados y activos · corte junio 2026 · Cifras de seguidores aproximadas ·
+        Todos los perfiles marcados ✓ VERIFICADO son cuentas oficiales públicas.
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -496,12 +531,12 @@ const PARTIES = [
 ];
 
 const STATS = [
-  { v:"107",     l:"Protestas en Táchira (Q1 2026)", src:"OVCS" },
-  { v:"+40",     l:"Presos políticos tachirenses",    src:"Foro Penal" },
-  { v:"454",     l:"Presos políticos nacionales",     src:"CIDH" },
-  { v:"649,5%",  l:"Inflación anualizada",            src:"BCV" },
-  { v:"20%",     l:"Déficit energético (suministro)", src:"Sector eléctrico" },
-  { v:"Cierre",  l:"Puente Fco. de Paula Santander",  src:"Frontera Táchira" },
+  { v:"107",    l:"Protestas en Táchira (Q1 2026)",         src:"OVCS · abr 2026" },
+  { v:"+40",    l:"Presos políticos tachirenses activos",    src:"Foro Penal · may 2026" },
+  { v:"+500",   l:"Presos políticos nacionales aún detenidos", src:"FIDH / Foro Penal · may 2026" },
+  { v:"∼180%",  l:"Inflación interanual estimada (2026)",   src:"Ecoanalítica / FMI · may 2026" },
+  { v:"20%",    l:"Déficit energético (suministro eléctrico)", src:"Sinergia / Sector eléctrico" },
+  { v:"Cerrado",l:"Puente Fco. de Paula Santander",         src:"Frontera Colombia-Táchira · 2026" },
 ];
 
 /* ============================================================================
@@ -976,21 +1011,17 @@ function renderTimeline(){
 }
 
 /* ============================================================================
-   RENDER — NAVEGACIÓN ACTIVA (resalta el botón al hacer scroll)
+   SPA — NAVEGACIÓN POR VISTAS (una vista activa a la vez)
    ============================================================================ */
-function initNavHighlight(){
-  const sections = Array.from(document.querySelectorAll(".section-title[id]"));
-  const btns = Array.from(document.querySelectorAll(".navbtn"));
-  if(!sections.length || !btns.length) return;
-  const obs = new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){
-        const id = e.target.id;
-        btns.forEach(b=>b.classList.toggle("active", b.getAttribute("href")==="#"+id));
-      }
-    });
-  },{rootMargin:"-20% 0px -70% 0px"});
-  sections.forEach(s=>obs.observe(s));
+function showView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  const el = document.getElementById("view-"+id);
+  if(el) el.classList.add("active");
+  document.querySelectorAll(".navbtn").forEach(b=>
+    b.classList.toggle("active", b.dataset.view===id)
+  );
+  window._currentView = id;
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 
@@ -1160,20 +1191,27 @@ function updateDirMeta(){
 function showApp(){
   $("#login").style.display="none";
   $("#app").style.display="block";
-  renderStatic();
-  const cache = loadCache();
-  if(cache) renderFromCache(cache);      // pinta algo de inmediato
-  refresh();                              // y dispara el primer fetch (noticias PUD, cada 1 h)
 
-  // Directorio Digital: render inmediato + primer fetch de feeds (cada 15 min)
+  // Conectar navbtns al sistema de vistas
+  document.querySelectorAll(".navbtn").forEach(b=>{
+    b.addEventListener("click", ()=>showView(b.dataset.view));
+  });
+
+  renderStatic();                     // Render inmediato de todas las secciones estáticas
+  showView("resumen");                // Vista inicial: Resumen Diario
+
+  const cache = loadCache();
+  if(cache) renderFromCache(cache);   // Pinta noticias guardadas de inmediato
+  refresh();                          // Primer fetch RSS (noticias PUD, cada 1 h)
+
   renderDirectory();
   renderOrbita();
   refreshDirectoryFeeds(false);
-  initNavHighlight();
+
   if(!window._dirTimers){
     window._dirTimers = true;
-    setInterval(()=>refreshDirectoryFeeds(false), 900000); // 15 minutos
-    setInterval(updateDirMeta, 30000);                     // recalcula "hace X min"
+    setInterval(()=>refreshDirectoryFeeds(false), 900000);
+    setInterval(updateDirMeta, 30000);
   }
 }
 $("#loginForm").addEventListener("submit", e=>{
