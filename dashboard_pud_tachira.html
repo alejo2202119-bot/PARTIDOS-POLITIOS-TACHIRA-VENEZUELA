@@ -189,6 +189,14 @@
     border-color:transparent;
     box-shadow:0 0 14px rgba(34,211,238,.4);
   }
+  /* sub-menú (segundo nivel) */
+  .navbar-sub{padding-top:0;padding-bottom:9px;gap:7px;border-top:1px solid rgba(255,255,255,.05)}
+  .navbar-sub:empty{display:none}
+  .subbtn{flex:0 0 auto;font-size:12px;font-weight:600;font-family:inherit;color:var(--muted);
+    background:transparent;border:1px solid transparent;border-radius:9px;padding:6px 13px;cursor:pointer;
+    transition:.15s;white-space:nowrap;-webkit-appearance:none;appearance:none}
+  .subbtn:hover{color:var(--txt);background:rgba(255,255,255,.06)}
+  .subbtn.active{color:var(--accent);background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.32);font-weight:700}
   /* ---- SPA views ---- */
   .view{display:none!important}
   .view.active{display:block!important}
@@ -378,27 +386,13 @@
       <span class="pill" id="statusPill"><span class="dot off" id="statusDot"></span><span id="statusTxt">Inicializando…</span></span>
       <span class="pill"><span>⏱</span><span id="countdown" class="mono">--:--</span></span>
       <span class="pill"><span>🕒 Últ.:</span><span id="lastUpdate" class="mono">—</span></span>
-      <span class="pill" style="font-size:10px;color:var(--muted2);padding:5px 9px">v6 · análisis</span>
+      <span class="pill" style="font-size:10px;color:var(--muted2);padding:5px 9px">v7 · menú</span>
       <button class="btn" id="refreshBtn" style="padding:8px 14px;font-size:13px">↻ Refrescar</button>
       <button class="btn ghost" id="logoutBtn" style="padding:8px 12px;font-size:13px">Salir</button>
     </div>
     <nav class="navbar" aria-label="Navegación del panel">
-      <div class="navbar-row">
-        <button class="navbtn active" data-view="resumen">📌 Resumen diario</button>
-        <button class="navbtn" data-view="encuestas">📈 Encuestas y gráficas</button>
-        <button class="navbtn" data-view="analisis">🧠 Análisis estratégico</button>
-        <button class="navbtn" data-view="apoyo">🗳️ Apoyo MCM</button>
-        <button class="navbtn" data-view="internacional">🌍 Internacional</button>
-        <button class="navbtn" data-view="economia">📉 Economía y país</button>
-        <button class="navbtn" data-view="stats">📊 Indicadores Táchira</button>
-        <button class="navbtn" data-view="red">📡 Red comunicacional</button>
-        <button class="navbtn" data-view="crono">🗓️ Cronograma</button>
-        <button class="navbtn" data-view="partidos">🏛️ Partidos</button>
-        <button class="navbtn" data-view="noticias">📰 Noticias</button>
-        <button class="navbtn" data-view="directorio">🔗 Directorio</button>
-        <button class="navbtn" data-view="orbita">🛰️ Órbita MCM</button>
-        <button class="navbtn" data-view="fuentes">📚 Fuentes</button>
-      </div>
+      <div class="navbar-row" id="navCats"></div>
+      <div class="navbar-row navbar-sub" id="navSub"></div>
     </nav>
   </header>
 
@@ -1509,18 +1503,72 @@ function renderSources(){
 }
 
 /* ============================================================================
-   SPA — NAVEGACIÓN POR VISTAS (una vista activa a la vez)
+   SPA — NAVEGACIÓN AGRUPADA (5 categorías + sub-menú contextual)
    ============================================================================ */
+const NAV = [
+  { id:"resumen", label:"📌 Resumen", views:[
+    { id:"resumen", label:"Resumen diario" },
+  ]},
+  { id:"datos", label:"📊 Análisis y datos", views:[
+    { id:"encuestas", label:"📈 Encuestas y gráficas" },
+    { id:"analisis",  label:"🧠 Análisis estratégico" },
+    { id:"economia",  label:"📉 Economía y país" },
+    { id:"stats",     label:"📊 Indicadores Táchira" },
+  ]},
+  { id:"oposicion", label:"🗳️ Oposición", views:[
+    { id:"apoyo",         label:"🗳️ Apoyo a M. Corina" },
+    { id:"internacional", label:"🌍 Internacional" },
+    { id:"red",           label:"📡 Red comunicacional" },
+    { id:"crono",         label:"🗓️ Cronograma" },
+    { id:"partidos",      label:"🏛️ Partidos PUD" },
+  ]},
+  { id:"medios", label:"📰 Medios y redes", views:[
+    { id:"noticias",   label:"📰 Noticias en vivo" },
+    { id:"directorio", label:"🔗 Directorio digital" },
+    { id:"orbita",     label:"🛰️ Órbita MCM" },
+  ]},
+  { id:"fuentes", label:"📚 Fuentes", views:[
+    { id:"fuentes", label:"Fuentes y metodología" },
+  ]},
+];
+
+function renderNav(){
+  const cats = $("#navCats"); if(!cats) return;
+  cats.innerHTML = NAV.map(g=>`<button class="navbtn" data-cat="${g.id}">${g.label}</button>`).join("");
+  cats.querySelectorAll("[data-cat]").forEach(b=>
+    b.addEventListener("click", ()=>showView(NAV.find(c=>c.id===b.dataset.cat).views[0].id))
+  );
+}
+
+function setCategory(catId){
+  const g = NAV.find(c=>c.id===catId); if(!g) return;
+  document.querySelectorAll("#navCats .navbtn").forEach(b=>
+    b.classList.toggle("active", b.dataset.cat===catId)
+  );
+  const sub = $("#navSub");
+  if(g.views.length>1){
+    sub.innerHTML = g.views.map(v=>`<button class="subbtn" data-view="${v.id}">${v.label}</button>`).join("");
+    sub.querySelectorAll("[data-view]").forEach(b=>
+      b.addEventListener("click", ()=>showView(b.dataset.view))
+    );
+  } else {
+    sub.innerHTML = "";
+  }
+  window._currentCat = catId;
+}
+
 function showView(id){
+  const cat = NAV.find(c=>c.views.some(v=>v.id===id));
+  if(cat && window._currentCat!==cat.id) setCategory(cat.id);
+
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   const el = document.getElementById("view-"+id);
   if(el){
     el.classList.add("active");
-    // Re-anima las barras de la vista al mostrarse (efecto al entrar)
     el.querySelectorAll(".hbar-fill").forEach(f=>{ f.style.width="0%"; });
     animateBars(el);
   }
-  document.querySelectorAll(".navbtn").forEach(b=>
+  document.querySelectorAll("#navSub .subbtn").forEach(b=>
     b.classList.toggle("active", b.dataset.view===id)
   );
   window._currentView = id;
@@ -1695,13 +1743,9 @@ function showApp(){
   $("#login").style.display="none";
   $("#app").style.display="block";
 
-  // Conectar navbtns al sistema de vistas
-  document.querySelectorAll(".navbtn").forEach(b=>{
-    b.addEventListener("click", ()=>showView(b.dataset.view));
-  });
-
+  renderNav();                        // Construye las 5 categorías del menú
   renderStatic();                     // Render inmediato de todas las secciones estáticas
-  showView("resumen");                // Vista inicial: Resumen Diario
+  showView("resumen");                // Vista inicial: Resumen Diario (activa su categoría)
 
   const cache = loadCache();
   if(cache) renderFromCache(cache);   // Pinta noticias guardadas de inmediato
