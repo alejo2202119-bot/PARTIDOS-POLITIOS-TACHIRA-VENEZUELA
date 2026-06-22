@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>📊 Dashboard Monitor PUD — Táchira en Vivo</title>
+<meta name="description" content="Monitoreo en tiempo real de información pública (RSS) de los partidos de la Plataforma Unitaria Democrática en el estado Táchira, Venezuela." />
+<style>
+  /* ===================== DESIGN TOKENS (sala de operaciones) ===================== */
+  :root{
+    --bg:#070b14; --bg2:#0a0f1c; --panel:#0e1424; --panel2:#111a2e;
+    --border:#1e293b; --border2:#334155;
+    --txt:#e6edf7; --muted:#8b9bb4; --muted2:#64748b;
+    --ok:#22c55e; --err:#ef4444; --warn:#f59e0b; --accent:#22d3ee;
+    --shadow:0 10px 40px rgba(2,6,23,.55);
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(1100px 520px at 100% -8%, #14203f 0%, transparent 60%),
+      radial-gradient(900px 480px at -8% 110%, #161033 0%, transparent 55%),
+      var(--bg);
+    color:var(--txt);
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.45;
+  }
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:'JetBrains Mono','Consolas','SF Mono',monospace;font-variant-numeric:tabular-nums}
+
+  /* ===================== LOGIN ===================== */
+  #login{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:radial-gradient(900px 500px at 50% 0%, #14203f 0%, transparent 60%), var(--bg)}
+  .login-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:18px;
+    box-shadow:var(--shadow);padding:30px}
+  .login-card h1{font-size:20px;letter-spacing:.5px;margin-bottom:4px}
+  .login-card .sub{color:var(--muted);font-size:13px;margin-bottom:22px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px}
+  .field input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);
+    color:var(--txt);font-size:15px;outline:none;transition:.15s}
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(34,211,238,.18)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;border:none;border-radius:10px;
+    font-weight:700;font-size:14px;padding:12px 16px;color:#04121a;
+    background:linear-gradient(135deg,#22d3ee,#6366f1)}
+  .btn:hover{filter:brightness(1.07)}
+  .btn.block{width:100%}
+  .btn.ghost{background:transparent;border:1px solid var(--border2);color:var(--txt)}
+  #loginErr{color:var(--err);font-size:13px;margin-top:10px;min-height:18px}
+  .login-note{margin-top:18px;font-size:11px;color:var(--muted2);line-height:1.6;border-top:1px solid var(--border);padding-top:14px}
+
+  /* ===================== HEADER ===================== */
+  #app{display:none}
+  header{position:sticky;top:0;z-index:40;background:rgba(8,12,22,.85);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border)}
+  .head-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 20px;max-width:1500px;margin:0 auto}
+  .brand{display:flex;flex-direction:column}
+  .brand .t{font-size:17px;font-weight:800;letter-spacing:.3px}
+  .brand .s{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+  .head-spacer{flex:1}
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:7px 12px;border-radius:99px;
+    background:var(--panel);border:1px solid var(--border);white-space:nowrap}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .dot.live{background:var(--ok);box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 2s infinite}
+  .dot.err{background:var(--err)} .dot.off{background:var(--warn)}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+  /* ===================== OFFLINE BANNER ===================== */
+  #offline{display:none;background:linear-gradient(90deg,rgba(245,158,11,.18),rgba(245,158,11,.06));
+    border-bottom:1px solid rgba(245,158,11,.4);color:#fde68a;font-size:13px;font-weight:600;
+    text-align:center;padding:9px 16px}
+  #offline.show{display:block}
+
+  /* ===================== LAYOUT ===================== */
+  main{max-width:1500px;margin:0 auto;padding:20px}
+  .section-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:.4px;
+    text-transform:uppercase;color:#cbd5e1;margin:26px 4px 14px}
+  .section-title .bar{width:4px;height:18px;border-radius:3px;background:linear-gradient(var(--accent),#6366f1)}
+
+  /* STATS */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
+  .stat::after{content:"";position:absolute;right:-20px;top:-20px;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.12),transparent 70%)}
+  .stat .v{font-size:27px;font-weight:800;letter-spacing:-.5px}
+  .stat .l{font-size:12.5px;color:var(--txt);margin-top:2px;font-weight:600}
+  .stat .src{font-size:10.5px;color:var(--muted2);margin-top:6px;text-transform:uppercase;letter-spacing:.5px}
+
+  /* PARTIES GRID */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--border);border-top-width:4px;border-radius:14px;
+    display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+  .card-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
+  .logo{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:14px;
+    color:#fff;flex-shrink:0;letter-spacing:.5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+  .card-head .nm{font-size:14.5px;font-weight:800;line-height:1.15}
+  .card-head .cnt{font-size:11px;color:var(--muted)}
+  .socials{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;border-bottom:1px solid var(--border)}
+  .chip{font-size:11px;font-weight:600;padding:5px 9px;border-radius:8px;border:1px solid var(--border2);
+    color:var(--muted);display:inline-flex;align-items:center;gap:5px;transition:.15s}
+  .chip:hover{color:var(--txt);border-color:var(--accent);background:rgba(34,211,238,.08)}
+  .leaders{padding:10px 16px;border-bottom:1px solid var(--border)}
+  .leaders .lbl{font-size:10.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+  .leader{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--txt);
+    background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:4px 9px;margin:0 6px 6px 0;transition:.15s}
+  .leader:hover{border-color:var(--accent)}
+  .leader .x{color:var(--accent);font-weight:700;font-size:11px}
+  .news{padding:8px 8px 12px;flex:1}
+  .ni{display:block;padding:9px 10px;border-radius:9px;transition:.12s}
+  .ni:hover{background:var(--panel2)}
+  .ni .h{font-size:12.8px;font-weight:600;line-height:1.35;color:var(--txt)}
+  .ni .m{font-size:10.5px;color:var(--muted);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+  .ni .m .s{color:var(--accent)}
+  .empty{padding:18px 16px;text-align:center;color:var(--muted2);font-size:12px}
+  .skeleton{height:13px;border-radius:6px;margin:8px 10px;background:linear-gradient(90deg,#0e1424 25%,#1b2740 37%,#0e1424 63%);background-size:400% 100%;animation:sh 1.4s infinite}
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+
+  /* GLOBAL NEWS */
+  .feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px}
+  .fitem{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:12px 14px;border-left:3px solid var(--border2);transition:.12s}
+  .fitem:hover{border-left-color:var(--accent);background:var(--panel2)}
+  .fitem .h{font-size:13px;font-weight:600;line-height:1.35}
+  .fitem .m{font-size:10.5px;color:var(--muted);margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;color:#fff}
+
+  footer{max-width:1500px;margin:30px auto 10px;padding:18px 20px;border-top:1px solid var(--border);color:var(--muted2);font-size:11px;line-height:1.7}
+  footer b{color:var(--muted)}
+  .src-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .src-list span{font-size:10.5px;border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--muted)}
+
+  @media (max-width:640px){ .head-row{padding:10px 14px} main{padding:14px} .brand .t{font-size:15px} }
+
+  /* ===================== DIRECTORIO DIGITAL ===================== */
+  .dir-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 4px 6px}
+  .dir-bar .upd{font-size:12px;color:var(--muted)}
+  .dir-cat{margin-top:16px}
+  .dir-cat .ct{font-size:12px;font-weight:800;color:var(--accent);letter-spacing:.5px;margin:0 4px 10px;text-transform:uppercase}
+  .dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+  .dir-card{display:block;background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:13px 14px;transition:.13s}
+  .dir-card:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+  .dir-cardlink{display:block}
+  .dir-top{display:flex;align-items:center;gap:10px}
+  .dir-icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:18px;background:var(--panel2);border:1px solid var(--border);flex-shrink:0}
+  .dir-id{flex:1;min-width:0}
+  .dir-plat{font-size:13.5px;font-weight:700;line-height:1.15}
+  .dir-handle{font-size:11.5px;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dbadge{font-size:9.5px;font-weight:800;padding:3px 7px;border-radius:99px;white-space:nowrap;letter-spacing:.3px}
+  .dbadge.v{background:rgba(34,197,94,.16);color:#4ade80}
+  .dbadge.c{background:rgba(59,130,246,.18);color:#60a5fa}
+  .dbadge.r{background:rgba(148,163,184,.18);color:#cbd5e1}
+  .dbadge.i{background:rgba(148,163,184,.12);color:#94a3b8}
+  .dir-meta{font-size:11.5px;color:var(--muted);margin-top:9px}
+  .dir-status{font-size:11px;margin-top:9px;color:var(--muted);display:flex;align-items:center;gap:6px;font-weight:600}
+  .sdot{width:8px;height:8px;border-radius:50%;background:var(--muted2);display:inline-block;flex-shrink:0}
+  .sdot.on{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+  .sdot.off{background:var(--err);box-shadow:0 0 6px var(--err)}
+  .dir-heads{margin-top:8px;border-top:1px dashed var(--border);padding-top:8px;display:flex;flex-direction:column;gap:7px}
+  .dir-head{font-size:11.5px;color:var(--txt);line-height:1.3;transition:.1s}
+  .dir-head:hover{color:var(--accent)}
+  .dir-head .dh-date{display:block;font-size:10px;color:var(--muted2);margin-top:2px}
+  .dir-empty{font-size:11px;color:var(--muted2)}
+  .dir-foot{margin-top:14px;font-size:11px;color:var(--muted2);font-style:italic;padding:0 4px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="login">
+  <div class="login-card">
+    <h1>📊 Monitor PUD · Táchira</h1>
+    <div class="sub">Acceso al panel de inteligencia política en vivo</div>
+    <form id="loginForm" autocomplete="off">
+      <div class="field"><label>Usuario</label><input id="u" type="text" placeholder="Usuario" autocomplete="username" /></div>
+      <div class="field"><label>Contraseña</label><input id="p" type="password" placeholder="Contraseña" autocomplete="current-password" /></div>
+      <button class="btn block" type="submit">Ingresar →</button>
+      <div id="loginErr"></div>
+    </form>
+    <div class="login-note">
+      Panel de monitoreo de <b>información pública</b> (feeds RSS de medios) sobre partidos y dirigentes
+      de la Plataforma Unitaria Democrática en el estado Táchira. Acceso de cliente (demostración).
+    </div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app">
+  <header>
+    <div class="head-row">
+      <div class="brand">
+        <span class="t">📊 DASHBOARD MONITOR PUD — TÁCHIRA</span>
+        <span class="s">Inteligencia política en vivo · OSINT</span>
+      </div>
+      <div class="head-spacer"></div>
+      <span class="pill" id="statusPill"><span class="dot off" id="statusDot"></span><span id="statusTxt">Inicializando…</span></span>
+      <span class="pill"><span>⏱</span><span id="countdown" class="mono">--:--</span></span>
+      <span class="pill"><span>🕒 Últ.:</span><span id="lastUpdate" class="mono">—</span></span>
+      <button class="btn" id="refreshBtn" style="padding:8px 14px;font-size:13px">↻ Refrescar</button>
+      <button class="btn ghost" id="logoutBtn" style="padding:8px 12px;font-size:13px">Salir</button>
+    </div>
+  </header>
+
+  <div id="offline">⚠ MODO OFFLINE — mostrando el último fetch guardado. Reintentando al recuperar conexión…</div>
+
+  <main>
+    <!-- STATS -->
+    <div class="section-title"><span class="bar"></span> Panel de Estadísticas · Táchira <span style="font-weight:500;color:var(--muted2);font-size:11px;text-transform:none;letter-spacing:0">(reporte 7 may 2026)</span></div>
+    <div class="stats" id="stats"></div>
+
+    <!-- PARTIES -->
+    <div class="section-title"><span class="bar"></span> 8 Partidos de la Plataforma Unitaria Democrática</div>
+    <div class="grid" id="parties"></div>
+
+    <!-- GLOBAL NEWS -->
+    <div class="section-title"><span class="bar"></span> Noticias Globales PUD · 10 más recientes</div>
+    <div class="feed" id="globalNews"></div>
+
+    <!-- DIRECTORIO DIGITAL -->
+    <div class="section-title"><span class="bar"></span> 📡 Directorio Digital · Redes y Medios</div>
+    <div class="dir-bar">
+      <span class="upd" id="dirUpdated">Actualizando…</span>
+      <button class="btn" id="dirRefreshBtn" style="padding:7px 12px;font-size:12.5px">🔄 Actualizar ahora</button>
+    </div>
+    <div id="directory"></div>
+    <div class="dir-foot" id="dirFoot">
+      Corte de seguidores: junio 2026 · Cifras aproximadas · Feeds actualizados automáticamente cada 15 min ·
+      Algunos medios pueden requerir VPN desde Venezuela.
+    </div>
+
+    <footer>
+      <div><b>Fuentes monitoreadas (RSS públicos):</b></div>
+      <div class="src-list" id="srcList"></div>
+      <div style="margin-top:12px">
+        Este panel procesa exclusivamente <b>información pública</b> (titulares y enlaces de medios vía RSS).
+        Los datos se almacenan localmente en tu navegador (localStorage), no se envían a ningún servidor.
+        Uso responsable: herramienta de análisis de cobertura mediática, no de vigilancia de personas privadas.
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script>
+/* ============================================================================
+   CONFIG
+   ============================================================================ */
+const AUTH = { user: "MORA20", pass: "12345678910" };   // acceso de cliente (demo)
+const REFRESH_MS = 3600000;                              // 1 hora exacta
+const CACHE_KEY  = "pud_tachira_cache_v1";
+const AUTH_KEY   = "pud_tachira_auth_v1";
+
+// Proxies CORS en cascada: allorigins → corsproxy → codetabs → (cache)
+const PROXIES = [
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  u => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
+];
+
+// 8 fuentes verificadas (medios opositores establecidos) — feeds RSS públicos
+const FEEDS = [
+  { source:"La Patilla",        url:"https://www.lapatilla.com/feed/" },
+  { source:"El Nacional",       url:"https://www.elnacional.com/feed/" },
+  { source:"Efecto Cocuyo",     url:"https://efectococuyo.com/feed/" },
+  { source:"Tal Cual",          url:"https://talcualdigital.com/feed/" },
+  { source:"Crónica Uno",       url:"https://cronica.uno/feed/" },
+  { source:"Noticiero Digital", url:"https://www.noticierodigital.com/feed/" },
+  { source:"La Nación Táchira",  url:"https://lanacionweb.com/feed/" },
+  { source:"Infobae Venezuela", url:"https://www.infobae.com/feeds/rss/america/venezuela.xml" },
+];
+
+/* Palabras clave Táchira (relevancia regional) — verifica/edita según necesites */
+const TACHIRA_KW = [
+  "tachira","san cristobal","la grita","rubio","capacho","seboruco","urena","tariba","palmira",
+  "michelena","colon","san antonio del tachira","pregonero","puente santander","francisco de paula santander",
+  // casos emblemáticos
+  "jackson vera","edwin sambrano","nancy penaloza","minelva dugarte"
+];
+
+/* 8 PARTIDOS PUD — edita aquí dirigentes, redes y palabras clave */
+const PARTIES = [
+  { id:"vente", name:"VENTE VENEZUELA", color:"#005BAA",
+    web:"https://venezuelavente.org", x:"VenteVenezuela", ig:"ventevenezuela",
+    leaders:[
+      {name:"María Corina Machado", x:"MariaCorinaYA"},
+      {name:"Henry Alviárez", x:null},
+      {name:"Francisco Ramírez", x:null},
+    ],
+    kw:["vente venezuela","vente","maria corina","corina machado","machado","henry alviarez","alviarez","francisco ramirez"] },
+
+  { id:"pj", name:"PRIMERO JUSTICIA", color:"#F5A800",
+    web:"https://primerojusticia.org.ve", x:"Pr1meroJusticia", ig:"primerojusticia",
+    leaders:[
+      {name:"Karim Vera", x:null},
+      {name:"Juan Pablo Guanipa", x:"JuanPGuanipa"},
+    ],
+    kw:["primero justicia","karim vera","juan pablo guanipa","guanipa"] },
+
+  { id:"ad", name:"ACCIÓN DEMOCRÁTICA EN RESISTENCIA", color:"#E30613",
+    web:"https://accion-democratica.org", x:"ADemocratica", ig:null,
+    leaders:[
+      {name:"Williams Dávila", x:"WilliamsDavila"},
+      {name:"Henry Ramos Allup", x:"hramosallup"},
+      {name:"Gerardo Méndez", x:null},
+    ],
+    kw:["accion democratica","ad resistencia","williams davila","henry ramos allup","ramos allup","gerardo mendez"] },
+
+  { id:"vp", name:"VOLUNTAD POPULAR", color:"#FF6600",
+    web:"https://www.voluntadpopular.com", x:"voluntadpopular", ig:"voluntadpopular",
+    leaders:[
+      {name:"Freddy Superlano", x:"freddysuperlano"},
+      {name:"William Moncada", x:null},
+    ],
+    kw:["voluntad popular","freddy superlano","superlano","william moncada"] },
+
+  { id:"unt", name:"UN NUEVO TIEMPO", color:"#003DA5",
+    web:"https://unnuevotiempo.org", x:"UNTeamoficial", ig:null,
+    leaders:[
+      {name:"Manuel Rosales", x:"manuelrosalesg"},
+      {name:"Freddy Kelly", x:null},
+      {name:"William Forero", x:null},
+    ],
+    kw:["un nuevo tiempo","manuel rosales","rosales","freddy kelly","william forero"] },
+
+  { id:"copei", name:"COPEI ODCA", color:"#009A3D",
+    web:"https://www.copei.org.ve", x:"PartidoCOPEI", ig:null,
+    leaders:[
+      {name:"César Pérez Vivas", x:"CesarPerezVivas"},
+    ],
+    kw:["copei","cesar perez vivas","perez vivas"] },
+
+  { id:"ec", name:"ENCUENTRO CIUDADANO", color:"#6A0DAD",
+    web:"https://encuentrociudadano.com", x:"EncuentroC_", ig:null,
+    leaders:[
+      {name:"Delsa Solórzano", x:"delsasolorzano"},
+      {name:"Alexis Guerrero", x:null},
+    ],
+    kw:["encuentro ciudadano","delsa solorzano","solorzano","alexis guerrero"] },
+
+  { id:"br", name:"BANDERA ROJA", color:"#8B0000",
+    web:"https://banderaroja.org.ve", x:"BanderaRojaVE", ig:null,
+    leaders:[
+      {name:"Jesús Manuel Berbesi Marciales", x:null},
+    ],
+    kw:["bandera roja","berbesi","jesus manuel berbesi","marciales"] },
+];
+
+const STATS = [
+  { v:"107",     l:"Protestas en Táchira (Q1 2026)", src:"OVCS" },
+  { v:"+40",     l:"Presos políticos tachirenses",    src:"Foro Penal" },
+  { v:"454",     l:"Presos políticos nacionales",     src:"CIDH" },
+  { v:"649,5%",  l:"Inflación anualizada",            src:"BCV" },
+  { v:"20%",     l:"Déficit energético (suministro)", src:"Sector eléctrico" },
+  { v:"Cierre",  l:"Puente Fco. de Paula Santander",  src:"Frontera Táchira" },
+];
+
+/* ============================================================================
+   UTILIDADES
+   ============================================================================ */
+const $ = s => document.querySelector(s);
+const norm = s => (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const esc  = s => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const xLink = (handle,name) => handle ? `https://x.com/${handle}` : `https://x.com/search?q=${encodeURIComponent(name)}&f=user`;
+
+function fmtDateTime(d){
+  try{ return new Intl.DateTimeFormat('es-VE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(d); }
+  catch(e){ return d.toLocaleString(); }
+}
+function timeAgo(d){
+  const s=(Date.now()-d.getTime())/1000;
+  if(s<60) return "hace instantes";
+  if(s<3600) return `hace ${Math.floor(s/60)} min`;
+  if(s<86400) return `hace ${Math.floor(s/3600)} h`;
+  return `hace ${Math.floor(s/86400)} d`;
+}
+
+/* ============================================================================
+   FETCH RSS + PROXY EN CASCADA
+   ============================================================================ */
+async function fetchWithProxies(url){
+  for(const make of PROXIES){
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), 12000);   // no colgar si un proxy no responde
+      const res = await fetch(make(url), { cache:"no-store", signal:ctrl.signal });
+      clearTimeout(t);
+      if(!res.ok) continue;
+      const text = await res.text();
+      if(text && text.length>200) return text;
+    }catch(e){ /* siguiente proxy */ }
+  }
+  return null;
+}
+
+function parseFeed(xmlText, source){
+  const out=[];
+  try{
+    const doc = new DOMParser().parseFromString(xmlText, "text/xml");
+    if(doc.querySelector("parsererror")) return out;
+    // RSS <item> y Atom <entry>
+    const items = [...doc.querySelectorAll("item"), ...doc.querySelectorAll("entry")];
+    for(const it of items){
+      const title = (it.querySelector("title")?.textContent || "").trim();
+      let link = it.querySelector("link")?.textContent?.trim();
+      if(!link){ const a=it.querySelector("link"); link = a?.getAttribute("href") || ""; }
+      const desc = (it.querySelector("description")?.textContent || it.querySelector("summary")?.textContent || "").replace(/<[^>]+>/g,"").trim();
+      const dRaw = it.querySelector("pubDate")?.textContent || it.querySelector("updated")?.textContent || it.querySelector("published")?.textContent || "";
+      const date = dRaw ? new Date(dRaw) : new Date();
+      if(title && link) out.push({ title, link, desc, source, date: isNaN(date)?new Date():date });
+    }
+  }catch(e){}
+  return out;
+}
+
+/* ============================================================================
+   CLASIFICACIÓN POR PARTIDO
+   ============================================================================ */
+function matchParties(article){
+  const hay = norm(article.title + " " + article.desc);
+  const ids = [];
+  for(const p of PARTIES){
+    if(p.kw.some(k => hay.includes(norm(k)))) ids.push(p.id);
+  }
+  return ids;
+}
+const isTachira = a => { const h=norm(a.title+" "+a.desc); return TACHIRA_KW.some(k=>h.includes(norm(k))); };
+
+/* ============================================================================
+   ESTADO
+   ============================================================================ */
+let nextRefreshAt = 0;
+let countdownTimer = null;
+
+/* ============================================================================
+   PIPELINE PRINCIPAL
+   ============================================================================ */
+async function refresh(manual=false){
+  setStatus("load", manual ? "Actualizando…" : "Conectando…");
+  if(!navigator.onLine){ goOffline(); return; }
+
+  const results = await Promise.allSettled(FEEDS.map(async f=>{
+    const xml = await fetchWithProxies(f.url);
+    return xml ? parseFeed(xml, f.source) : [];
+  }));
+
+  let all = [];
+  results.forEach(r => { if(r.status==="fulfilled") all = all.concat(r.value); });
+
+  // dedupe por título normalizado, orden por fecha desc
+  const seen = new Set();
+  all = all.filter(a => { const k=norm(a.title).slice(0,80); if(seen.has(k))return false; seen.add(k); return true; })
+           .sort((a,b)=> b.date - a.date);
+
+  if(all.length === 0){
+    // Todo falló → usar cache si existe, sin errores visuales
+    const cache = loadCache();
+    if(cache){ renderFromCache(cache); setStatus("err","Sin conexión a fuentes · cache"); }
+    else { renderEmpty(); setStatus("err","Sin datos disponibles"); }
+    armCountdown();
+    return;
+  }
+
+  // Clasificar
+  const byParty = {}; PARTIES.forEach(p=>byParty[p.id]=[]);
+  for(const a of all){
+    for(const id of matchParties(a)){
+      if(byParty[id].length<5) byParty[id].push(a);
+    }
+  }
+  // Global: prioriza Táchira/partidos, top 10
+  const relevant = all.filter(a => isTachira(a) || matchParties(a).length>0);
+  const global = (relevant.length? relevant: all).slice(0,10);
+
+  const payload = { ts: Date.now(), byParty, global, total: all.length };
+  saveCache(payload);
+  renderData(payload, false);
+  setStatus("live", `Conectado · ${all.length} notas`);
+  hideOffline();
+  armCountdown();
+}
+
+/* ============================================================================
+   RENDER
+   ============================================================================ */
+function partyById(id){ return PARTIES.find(p=>p.id===id); }
+
+function newsItemHTML(a){
+  return `<a class="ni" href="${esc(a.link)}" target="_blank" rel="noopener">
+    <div class="h">${esc(a.title)}</div>
+    <div class="m"><span class="s">${esc(a.source)}</span><span>·</span><span>${fmtDateTime(new Date(a.date))}</span></div>
+  </a>`;
+}
+
+function renderParties(byParty, loading=false){
+  $("#parties").innerHTML = PARTIES.map(p=>{
+    const initials = p.name.split(" ").slice(0,2).map(w=>w[0]).join("");
+    const news = (byParty[p.id]||[]);
+    const socials = [
+      p.web ? `<a class="chip" href="${esc(p.web)}" target="_blank" rel="noopener">🌐 Web</a>`:"",
+      `<a class="chip" href="${p.x?`https://x.com/${p.x}`:`https://x.com/search?q=${encodeURIComponent(p.name)}`}" target="_blank" rel="noopener">𝕏 ${p.x?'@'+p.x:'Buscar'}</a>`,
+      p.ig ? `<a class="chip" href="https://instagram.com/${p.ig}" target="_blank" rel="noopener">📷 IG</a>`:"",
+    ].join("");
+    const leaders = p.leaders.map(l=>
+      `<a class="leader" href="${xLink(l.x,l.name)}" target="_blank" rel="noopener">${esc(l.name)} <span class="x">𝕏</span></a>`
+    ).join("");
+    const newsHTML = news.length ? news.map(newsItemHTML).join("")
+      : (loading ? '<div class="skeleton"></div>'.repeat(3)
+                 : `<div class="empty">Sin noticias recientes que mencionen al partido o sus dirigentes.</div>`);
+    return `<div class="card" style="border-top-color:${p.color}">
+      <div class="card-head">
+        <div class="logo" style="background:${p.color}">${esc(initials)}</div>
+        <div><div class="nm">${esc(p.name)}</div><div class="cnt">${news.length} noticia(s) · Táchira</div></div>
+      </div>
+      <div class="socials">${socials}</div>
+      <div class="leaders"><div class="lbl">Dirigentes regionales</div>${leaders}</div>
+      <div class="news">${newsHTML}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderGlobal(global){
+  $("#globalNews").innerHTML = global.length ? global.map(a=>{
+    const ids = matchParties(a);
+    const p = ids.length? partyById(ids[0]) : null;
+    const tag = p ? `<span class="tag" style="background:${p.color}">${esc(p.name.split(" ")[0])}</span>` : "";
+    return `<a class="fitem" href="${esc(a.link)}" target="_blank" rel="noopener" style="${p?`border-left-color:${p.color}`:''}">
+      <div class="h">${esc(a.title)}</div>
+      <div class="m">${tag}<span class="s" style="color:var(--accent)">${esc(a.source)}</span><span>·</span><span>${timeAgo(new Date(a.date))}</span></div>
+    </a>`;
+  }).join("") : `<div class="empty">No hay noticias disponibles en este momento.</div>`;
+}
+
+function renderData(payload, fromCache){
+  renderParties(payload.byParty);
+  renderGlobal(payload.global);
+  const d = new Date(payload.ts);
+  $("#lastUpdate").textContent = fmtDateTime(d) + (fromCache?" (cache)":"");
+}
+function renderFromCache(cache){ renderData(cache, true); }
+function renderEmpty(){
+  renderParties({});
+  $("#globalNews").innerHTML = `<div class="empty">No hay datos. Verifica tu conexión a internet y pulsa “Refrescar”.</div>`;
+}
+
+function renderStatic(){
+  $("#stats").innerHTML = STATS.map(s=>
+    `<div class="stat"><div class="v">${esc(s.v)}</div><div class="l">${esc(s.l)}</div><div class="src">Fuente: ${esc(s.src)}</div></div>`
+  ).join("");
+  $("#srcList").innerHTML = FEEDS.map(f=>`<span>${esc(f.source)}</span>`).join("");
+  // Cards completas de inmediato (logos, redes y dirigentes) + esqueleto de noticias
+  renderParties({}, true);
+}
+
+/* ============================================================================
+   STATUS / OFFLINE / COUNTDOWN
+   ============================================================================ */
+function setStatus(kind, txt){
+  const dot=$("#statusDot"); dot.className="dot "+(kind==="live"?"live":kind==="err"?"err":"off");
+  $("#statusTxt").textContent = txt;
+}
+function goOffline(){
+  $("#offline").classList.add("show");
+  const cache = loadCache();
+  if(cache){ renderFromCache(cache); setStatus("off","Modo offline · cache"); }
+  else { renderEmpty(); setStatus("off","Sin conexión"); }
+  armCountdown();
+}
+function hideOffline(){ $("#offline").classList.remove("show"); }
+
+function armCountdown(){
+  nextRefreshAt = Date.now() + REFRESH_MS;
+  if(countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(tickCountdown, 1000);
+  tickCountdown();
+}
+function tickCountdown(){
+  let ms = nextRefreshAt - Date.now();
+  if(ms<=0){ $("#countdown").textContent="00:00"; clearInterval(countdownTimer); refresh(); return; }
+  const m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
+  $("#countdown").textContent = String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+/* ============================================================================
+   CACHE (localStorage)
+   ============================================================================ */
+function saveCache(p){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(p)); }catch(e){} }
+function loadCache(){ try{ const r=localStorage.getItem(CACHE_KEY); return r?JSON.parse(r):null; }catch(e){ return null; } }
+
+/* ============================================================================
+   DIRECTORIO DIGITAL · REDES Y MEDIOS  (auto-actualizable)
+   ============================================================================ */
+const DIR_BADGES = {
+  v:{cls:"v",label:"✓ VERIFICADO"}, c:{cls:"c",label:"✓ CONFIABLE"},
+  r:{cls:"r",label:"✓ REFERENCIA"}, i:{cls:"i",label:"🌎 INTERNACIONAL"},
+};
+const DIRECTORY = [
+  { cat:"María Corina Machado · Núcleo de liderazgo", items:[
+    { icon:"📷", plat:"Instagram", handle:"@mariacorinamachado", url:"https://www.instagram.com/mariacorinamachado/", meta:"~9.000.000 seguidores", badge:"v" },
+    { icon:"𝕏", plat:"X (Twitter)", handle:"@MariaCorinaYA", url:"https://x.com/MariaCorinaYA", meta:"~6.000.000 seguidores", badge:"v" },
+  ]},
+  { cat:"Vente Venezuela · Estructura partidista", items:[
+    { icon:"📷", plat:"Instagram", handle:"@ventevenezuela", url:"https://www.instagram.com/ventevenezuela/", meta:"~1.000.000 seguidores", badge:"v" },
+    { icon:"🎵", plat:"TikTok", handle:"@ventevenezuela_", url:"https://www.tiktok.com/@ventevenezuela_", meta:"386.400 seguidores · 3.2M likes", badge:"v" },
+    { icon:"▶️", plat:"YouTube", handle:"Vente Venezuela", url:"https://www.youtube.com/user/Ventevenezuela", meta:"Canal oficial desde 2012", badge:"v" },
+  ]},
+  { cat:"Medios independientes confiables", items:[
+    { icon:"📰", plat:"Efecto Cocuyo", handle:"efectococuyo.com", url:"https://efectococuyo.com/", meta:"Fundado 2015 · ~30 periodistas", badge:"c", feed:"https://efectococuyo.com/feed/" },
+    { icon:"📰", plat:"Runrun.es", handle:"runrun.es", url:"https://runrun.es/", meta:"Periodismo independiente", badge:"c", feed:"https://runrun.es/feed/" },
+    { icon:"📰", plat:"El Pitazo", handle:"elpitazo.net", url:"https://elpitazo.net/", meta:"Premio Ortega y Gasset 2019", badge:"c", feed:"https://elpitazo.net/feed/" },
+    { icon:"🔎", plat:"Armando.info", handle:"armando.info", url:"https://armando.info/", meta:"Periodismo de investigación", badge:"c", feed:"https://armando.info/feed/" },
+    { icon:"📰", plat:"Tal Cual", handle:"talcualdigital.com", url:"https://talcualdigital.com/", meta:"Medio digital independiente", badge:"c", feed:"https://talcualdigital.com/feed/" },
+    { icon:"📰", plat:"Caraota Digital", handle:"caraotadigital.net", url:"https://www.caraotadigital.net/", meta:"Noticias Venezuela", badge:"c" },
+  ]},
+  { cat:"Observatorios y derechos digitales", items:[
+    { icon:"🛡️", plat:"VE sin Filtro", handle:"vesinfiltro.com", url:"https://vesinfiltro.com/", meta:"Monitoreo de bloqueos y censura", badge:"r" },
+    { icon:"🗣️", plat:"Espacio Público", handle:"espaciopublico.ong", url:"https://espaciopublico.ong/", meta:"Libertad de expresión", badge:"r" },
+    { icon:"📚", plat:"IPYS Venezuela", handle:"ipysvenezuela.org", url:"https://ipysvenezuela.org/", meta:"Instituto Prensa y Sociedad", badge:"r" },
+  ]},
+  { cat:"Medios internacionales · Cobertura Venezuela", items:[
+    { icon:"🌎", plat:"CNN en Español", handle:"cnnespanol.cnn.com", url:"https://cnnespanol.cnn.com/tag/venezuela/", meta:"Cobertura Venezuela", badge:"i" },
+    { icon:"🌎", plat:"Infobae Venezuela", handle:"infobae.com", url:"https://www.infobae.com/venezuela/", meta:"Cobertura Venezuela", badge:"i" },
+    { icon:"🌎", plat:"BBC Mundo", handle:"bbc.com/mundo", url:"https://www.bbc.com/mundo/temas/venezuela", meta:"Cobertura Venezuela", badge:"i" },
+  ]},
+];
+let dirLastUpdate = 0;
+const slugify = s => norm(s).replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+
+function renderDirectory(){
+  $("#directory").innerHTML = DIRECTORY.map(group=>{
+    const cards = group.items.map(it=>{
+      const b = DIR_BADGES[it.badge] || DIR_BADGES.r;
+      const top = `<div class="dir-top">
+          <div class="dir-icon">${it.icon}</div>
+          <div class="dir-id"><div class="dir-plat">${esc(it.plat)}</div><div class="dir-handle">${esc(it.handle)}</div></div>
+          <span class="dbadge ${b.cls}">${b.label}</span>
+        </div>
+        <div class="dir-meta">${esc(it.meta)}</div>`;
+      if(it.feed){
+        const id = slugify(it.plat);
+        return `<div class="dir-card">
+          <a class="dir-cardlink" href="${esc(it.url)}" target="_blank" rel="noopener">${top}</a>
+          <div class="dir-status" id="dirstat-${id}"><span class="sdot"></span> Comprobando señal…</div>
+          <div class="dir-heads" id="dirfeed-${id}"><div class="skeleton" style="margin:4px 0"></div><div class="skeleton" style="margin:4px 0;width:80%"></div></div>
+        </div>`;
+      }
+      return `<a class="dir-card" href="${esc(it.url)}" target="_blank" rel="noopener">${top}</a>`;
+    }).join("");
+    return `<div class="dir-cat"><div class="ct">${esc(group.cat)}</div><div class="dir-grid">${cards}</div></div>`;
+  }).join("");
+}
+
+async function refreshDirectoryFeeds(manual=false){
+  const btn = $("#dirRefreshBtn");
+  if(manual && btn){ btn.disabled=true; btn.textContent="Actualizando…"; }
+  const feedItems = [];
+  DIRECTORY.forEach(g=>g.items.forEach(it=>{ if(it.feed) feedItems.push(it); }));
+
+  await Promise.allSettled(feedItems.map(async it=>{
+    const id = slugify(it.plat);
+    const statEl = document.getElementById("dirstat-"+id);
+    const headEl = document.getElementById("dirfeed-"+id);
+    const xml = navigator.onLine ? await fetchWithProxies(it.feed) : null;
+    if(!xml){
+      if(statEl) statEl.innerHTML = '<span class="sdot off"></span> Sin señal / posible bloqueo';
+      if(headEl) headEl.innerHTML = '<div class="dir-empty">No se pudieron cargar titulares ahora.</div>';
+      return;
+    }
+    const arts = parseFeed(xml, it.plat).sort((a,b)=>b.date-a.date).slice(0,3);
+    if(statEl) statEl.innerHTML = '<span class="sdot on"></span> En línea';
+    if(headEl) headEl.innerHTML = arts.length
+      ? arts.map(a=>`<a class="dir-head" href="${esc(a.link)}" target="_blank" rel="noopener">• ${esc(a.title)}<span class="dh-date">${fmtDateTime(new Date(a.date))}</span></a>`).join("")
+      : '<div class="dir-empty">Sin titulares recientes.</div>';
+  }));
+
+  dirLastUpdate = Date.now();
+  updateDirMeta();
+  if(manual && btn){ btn.disabled=false; btn.textContent="🔄 Actualizar ahora"; }
+}
+
+function updateDirMeta(){
+  const el = $("#dirUpdated"); if(!el) return;
+  el.textContent = dirLastUpdate
+    ? `Última actualización: ${timeAgo(new Date(dirLastUpdate))} · ${fmtDateTime(new Date(dirLastUpdate))}`
+    : "Actualizando feeds…";
+}
+
+/* ============================================================================
+   LOGIN
+   ============================================================================ */
+function showApp(){
+  $("#login").style.display="none";
+  $("#app").style.display="block";
+  renderStatic();
+  const cache = loadCache();
+  if(cache) renderFromCache(cache);      // pinta algo de inmediato
+  refresh();                              // y dispara el primer fetch (noticias PUD, cada 1 h)
+
+  // Directorio Digital: render inmediato + primer fetch de feeds (cada 15 min)
+  renderDirectory();
+  refreshDirectoryFeeds(false);
+  if(!window._dirTimers){
+    window._dirTimers = true;
+    setInterval(()=>refreshDirectoryFeeds(false), 900000); // 15 minutos
+    setInterval(updateDirMeta, 30000);                     // recalcula "hace X min"
+  }
+}
+$("#loginForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const u=$("#u").value.trim(), p=$("#p").value;
+  if(u===AUTH.user && p===AUTH.pass){
+    try{ localStorage.setItem(AUTH_KEY,"1"); }catch(e){}
+    showApp();
+  } else {
+    $("#loginErr").textContent="Usuario o contraseña incorrectos.";
+  }
+});
+$("#logoutBtn").addEventListener("click", ()=>{
+  try{ localStorage.removeItem(AUTH_KEY); }catch(e){}
+  location.reload();
+});
+$("#refreshBtn").addEventListener("click", ()=>refresh(true));
+$("#dirRefreshBtn").addEventListener("click", ()=>refreshDirectoryFeeds(true));
+
+window.addEventListener("online", ()=>{ hideOffline(); refresh(); refreshDirectoryFeeds(); });
+window.addEventListener("offline", goOffline);
+
+/* ============================================================================
+   INIT
+   ============================================================================ */
+(function init(){
+  try{ if(localStorage.getItem(AUTH_KEY)==="1"){ showApp(); return; } }catch(e){}
+  $("#u").focus();
+})();
+</script>
+</body>
+</html>
