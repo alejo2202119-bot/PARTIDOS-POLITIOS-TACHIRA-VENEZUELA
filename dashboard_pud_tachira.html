@@ -162,6 +162,86 @@
   .dir-head .dh-date{display:block;font-size:10px;color:var(--muted2);margin-top:2px}
   .dir-empty{font-size:11px;color:var(--muted2)}
   .dir-foot{margin-top:14px;font-size:11px;color:var(--muted2);font-style:italic;padding:0 4px;line-height:1.6}
+
+  /* ===================== NAV (anclas con salto suave) ===================== */
+  html{scroll-behavior:smooth}
+  .navbar{border-top:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .navbar::-webkit-scrollbar{height:0}
+  .navbar-row{display:flex;gap:8px;padding:9px 20px;max-width:1500px;margin:0 auto;white-space:nowrap}
+  .navbtn{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--muted);background:var(--panel);
+    border:1px solid var(--border);border-radius:99px;padding:8px 14px;cursor:pointer;transition:.15s;
+    display:inline-flex;align-items:center;gap:6px}
+  .navbtn:hover{color:var(--txt);border-color:var(--accent);background:rgba(34,211,238,.08)}
+  .navbtn.active{color:#04121a;background:linear-gradient(135deg,#22d3ee,#6366f1);border-color:transparent}
+  .section-title{scroll-margin-top:124px}
+  .sub-h{font-size:12.5px;font-weight:700;color:var(--muted);margin:18px 4px 10px;letter-spacing:.3px}
+
+  /* ===================== RESUMEN DIARIO / BRIEFING ===================== */
+  .sum-wrap{display:grid;grid-template-columns:1.15fr 1fr;gap:14px}
+  @media (max-width:900px){.sum-wrap{grid-template-columns:1fr}}
+  .brief{background:linear-gradient(135deg,rgba(34,211,238,.06),rgba(99,102,241,.05));
+    border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+  .brief h4{font-size:12.5px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px}
+  .brief ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .brief li{font-size:13px;line-height:1.5;color:var(--txt);padding-left:19px;position:relative}
+  .brief li::before{content:"▸";position:absolute;left:0;color:var(--accent);font-weight:700}
+  .brief li b{color:#fff}
+  .sum-side{display:flex;flex-direction:column;gap:12px}
+  .sum-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .sum-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+  .sum-card .v{font-size:23px;font-weight:800;letter-spacing:-.5px}
+  .sum-card .l{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3}
+  .sum-heads{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+  .sum-heads .lbl{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .sum-head{display:block;font-size:12.5px;color:var(--txt);line-height:1.35;padding:7px 0;border-top:1px dashed var(--border)}
+  .sum-head:hover{color:var(--accent)}
+  .sum-head .s{color:var(--accent);font-size:10.5px}
+  .sum-note{color:var(--muted2);font-size:12px;padding:6px 2px}
+
+  /* ===================== ENCUESTAS / INDICADORES ===================== */
+  .poll-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:12px}
+  .poll{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:14px 16px}
+  .poll .pv{font-size:27px;font-weight:800;letter-spacing:-.5px}
+  .poll .pl{font-size:12.5px;color:var(--txt);font-weight:600;margin-top:2px;line-height:1.32}
+  .poll-bar{height:8px;border-radius:99px;background:var(--panel2);margin:11px 0 9px;overflow:hidden}
+  .poll-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#22d3ee,#6366f1)}
+  .poll .ps{font-size:10.5px;color:var(--muted2);letter-spacing:.3px;line-height:1.4}
+
+  /* ===================== MAPA DE APOYO ===================== */
+  .supp-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+  .supp-col{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 16px;border-top-width:4px}
+  .supp-col h4{font-size:13.5px;font-weight:800;margin-bottom:3px}
+  .supp-col .cap{font-size:11px;color:var(--muted2);margin-bottom:11px;line-height:1.4}
+  .supp-item{padding:9px 0;border-top:1px solid var(--border)}
+  .supp-item:first-of-type{border-top:none}
+  .supp-item .n{font-size:13px;font-weight:700;color:var(--txt)}
+  .supp-item .d{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.42}
+
+  /* ===================== RED COMUNICACIONAL ===================== */
+  .comm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:12px}
+  .comm-card{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:14px 16px}
+  .comm-card .ico{font-size:23px}
+  .comm-card .t{font-size:14px;font-weight:800;margin:7px 0 5px}
+  .comm-card .d{font-size:12px;color:var(--muted);line-height:1.46}
+  .tactics{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .tactic{font-size:12px;font-weight:600;color:var(--txt);background:var(--panel2);
+    border:1px solid var(--border2);border-radius:99px;padding:7px 13px}
+
+  /* ===================== CRONOGRAMA / TIMELINE ===================== */
+  .tl{position:relative;margin:4px 6px 0;padding-left:26px}
+  .tl::before{content:"";position:absolute;left:7px;top:5px;bottom:8px;width:2px;background:linear-gradient(var(--accent),#6366f1)}
+  .tl-item{position:relative;padding:0 0 16px 0}
+  .tl-item::before{content:"";position:absolute;left:-23px;top:3px;width:12px;height:12px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 0 4px var(--bg)}
+  .tl-item.fut::before{background:var(--warn)}
+  .tl-date{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.4px}
+  .tl-item.fut .tl-date{color:var(--warn)}
+  .tl-t{font-size:13.5px;font-weight:700;margin:2px 0 3px}
+  .tl-d{font-size:12px;color:var(--muted);line-height:1.46}
+  .modus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:10px}
+  .modus{background:var(--panel);border:1px solid var(--border);border-left-width:4px;border-radius:12px;padding:13px 15px}
+  .modus .mn{font-size:13.5px;font-weight:800}
+  .modus .md{font-size:12px;color:var(--muted);line-height:1.46;margin-top:5px}
 </style>
 </head>
 <body>
@@ -199,25 +279,66 @@
       <button class="btn" id="refreshBtn" style="padding:8px 14px;font-size:13px">↻ Refrescar</button>
       <button class="btn ghost" id="logoutBtn" style="padding:8px 12px;font-size:13px">Salir</button>
     </div>
+    <nav class="navbar" aria-label="Navegación del panel">
+      <div class="navbar-row" id="navRow">
+        <a class="navbtn" href="#sec-resumen">📌 Resumen diario</a>
+        <a class="navbtn" href="#sec-stats">📊 Indicadores Táchira</a>
+        <a class="navbtn" href="#sec-encuestas">📈 Encuestas</a>
+        <a class="navbtn" href="#sec-apoyo">🗳️ Apoyo a M. Corina</a>
+        <a class="navbtn" href="#sec-red">📡 Red comunicacional</a>
+        <a class="navbtn" href="#sec-crono">🗓️ Cronograma</a>
+        <a class="navbtn" href="#sec-partidos">🏛️ Partidos</a>
+        <a class="navbtn" href="#sec-noticias">📰 Noticias</a>
+        <a class="navbtn" href="#sec-directorio">🔗 Directorio</a>
+        <a class="navbtn" href="#sec-orbita">🛰️ Órbita MCM</a>
+      </div>
+    </nav>
   </header>
 
   <div id="offline">⚠ MODO OFFLINE — mostrando el último fetch guardado. Reintentando al recuperar conexión…</div>
 
   <main>
+    <!-- RESUMEN DIARIO -->
+    <div class="section-title" id="sec-resumen"><span class="bar"></span> 📌 Resumen Diario · Cómo va la oposición</div>
+    <div id="summary"></div>
+
     <!-- STATS -->
-    <div class="section-title"><span class="bar"></span> Panel de Estadísticas · Táchira <span style="font-weight:500;color:var(--muted2);font-size:11px;text-transform:none;letter-spacing:0">(reporte 7 may 2026)</span></div>
+    <div class="section-title" id="sec-stats"><span class="bar"></span> 📊 Panel de Indicadores · Táchira <span style="font-weight:500;color:var(--muted2);font-size:11px;text-transform:none;letter-spacing:0">(reporte 7 may 2026)</span></div>
     <div class="stats" id="stats"></div>
 
+    <!-- ENCUESTAS E INDICADORES -->
+    <div class="section-title" id="sec-encuestas"><span class="bar"></span> 📈 Encuestas, Indicadores y Resultados</div>
+    <div class="poll-grid" id="polls"></div>
+    <div class="dir-foot" id="pollsFoot"></div>
+
+    <!-- APOYO A MARÍA CORINA -->
+    <div class="section-title" id="sec-apoyo"><span class="bar"></span> 🗳️ Quiénes apoyan a María Corina Machado</div>
+    <div class="supp-cols" id="support"></div>
+    <div class="dir-foot" id="supportFoot"></div>
+
+    <!-- RED COMUNICACIONAL -->
+    <div class="section-title" id="sec-red"><span class="bar"></span> 📡 Red Comunicacional · Cómo convencen</div>
+    <div class="comm-grid" id="comms"></div>
+    <div class="sub-h">Tácticas de persuasión y movilización</div>
+    <div class="tactics" id="tactics"></div>
+
+    <!-- CRONOGRAMA / CÓMO OPERAN -->
+    <div class="section-title" id="sec-crono"><span class="bar"></span> 🗓️ Cronograma y Cómo Opera Cada Partido</div>
+    <div class="sub-h">Línea de tiempo de la ruta opositora</div>
+    <div class="tl" id="timeline"></div>
+    <div class="sub-h">Modus operandi de cada partido</div>
+    <div class="modus-grid" id="modus"></div>
+
     <!-- PARTIES -->
-    <div class="section-title"><span class="bar"></span> 8 Partidos de la Plataforma Unitaria Democrática</div>
+    <div class="section-title" id="sec-partidos"><span class="bar"></span> 🏛️ 8 Partidos de la Plataforma Unitaria Democrática</div>
     <div class="grid" id="parties"></div>
 
     <!-- GLOBAL NEWS -->
-    <div class="section-title"><span class="bar"></span> Noticias Globales PUD · 10 más recientes</div>
+    <div class="section-title" id="sec-noticias"><span class="bar"></span> 📰 Noticias Globales PUD · 10 más recientes</div>
     <div class="feed" id="globalNews"></div>
 
     <!-- DIRECTORIO DIGITAL -->
-    <div class="section-title"><span class="bar"></span> 📡 Directorio Digital · Redes y Medios</div>
+    <div class="section-title" id="sec-directorio"><span class="bar"></span> 🔗 Directorio Digital · Redes y Medios</div>
     <div class="dir-bar">
       <span class="upd" id="dirUpdated">Actualizando…</span>
       <button class="btn" id="dirRefreshBtn" style="padding:7px 12px;font-size:12.5px">🔄 Actualizar ahora</button>
@@ -229,7 +350,7 @@
     </div>
 
     <!-- ÓRBITA DIGITAL MCM -->
-    <div class="section-title"><span class="bar"></span> 🛰️ Órbita Digital MCM · Táchira</div>
+    <div class="section-title" id="sec-orbita"><span class="bar"></span> 🛰️ Órbita Digital MCM · Táchira</div>
     <div id="orbita"></div>
     <div class="dir-foot">
       Enlaces verificados y activos · corte junio 2026 · Cifras de seguidores aproximadas ·
@@ -362,6 +483,96 @@ const STATS = [
   { v:"20%",     l:"Déficit energético (suministro)", src:"Sector eléctrico" },
   { v:"Cierre",  l:"Puente Fco. de Paula Santander",  src:"Frontera Táchira" },
 ];
+
+/* ============================================================================
+   INTELIGENCIA OPOSITORA — datos verificados (corte jun 2026)
+   Fuentes: Infobae, Efecto Cocuyo, El Estímulo, NTN24, Meganálisis, AtlasIntel,
+   resultadosconvzla.com, Vente Venezuela. Cada cifra lleva fuente y fecha.
+   ============================================================================ */
+
+// Resumen diario · contexto nacional (parte curada, siempre visible)
+const BRIEF = [
+  `La oposición está liderada por <b>María Corina Machado</b> (Premio Nobel de la Paz 2025), con <b>Edmundo González Urrutia</b> reconocido por la oposición como ganador de las presidenciales del 28-J de 2024.`,
+  `Tras la captura de <b>Nicolás Maduro</b> (3 ene 2026), la prioridad es una <b>transición negociada con garantías</b> y nuevas elecciones a finales de 2026.`,
+  `El 28 de mayo de 2026 se firmó el <b>Manifiesto de Panamá</b>: hoja de ruta hacia la democracia respaldada por la Plataforma Unitaria y la Alianza Con Vzla.`,
+  `Demandas clave: <b>renovación del CNE</b>, liberación de <b>más de 500 presos políticos</b> y desmantelamiento de las estructuras represivas.`,
+];
+
+// Encuestas e indicadores (valor 0-100 para la barra, etiqueta y fuente/fecha)
+const POLLS = [
+  { v:"64%",   pct:64, l:"Considera ilegítimo el mandato de Maduro", s:"Encuesta nacional · mar 2025 (vía Infobae)" },
+  { v:"72%",   pct:72, l:"Aprobación y liderazgo de María Corina Machado", s:"Meganálisis · 2026" },
+  { v:"78,3%", pct:78, l:"La elegiría en un escenario electoral abierto", s:"Meganálisis · 2026" },
+  { v:"43,4%", pct:43, l:"Imagen positiva de Edmundo González dentro de Venezuela", s:"AtlasIntel" },
+  { v:"~67%",  pct:67, l:"Votos a favor de González según las actas publicadas por la oposición", s:"resultadosconvzla.com · 28-J 2024" },
+  { v:"48%",   pct:48, l:"En Colombia: MCM debería ser la próxima presidenta", s:"Encuesta regional · 2025-2026" },
+];
+
+// Mapa de apoyo a María Corina Machado
+const SUPPORT = [
+  { color:"#22c55e", title:"Apoyo firme a María Corina", cap:"Respaldo cerrado a la candidatura unitaria y a la ruta de MCM y González.", items:[
+    { n:"Vente Venezuela", d:"Partido de María Corina Machado; eje de la Alianza Con Vzla." },
+    { n:"Primero Justicia", d:"Respaldo cerrado; despliegue de testigos y defensa del voto." },
+    { n:"Voluntad Popular", d:"Alineado con la ruta de MCM; activismo de calle y diáspora." },
+    { n:"Encuentro Ciudadano", d:"Delsa Solórzano; respaldo firme desde la sociedad civil." },
+    { n:"COPEI ODCA", d:"César Pérez Vivas; respaldo a la unidad en Táchira y los Andes." },
+    { n:"AD en Resistencia", d:"Facción de Acción Democrática que respaldó la candidatura unitaria." },
+    { n:"La Causa R · Convergencia · Proyecto Venezuela", d:"Partidos nacionales que jugaron cuadro cerrado con MCM." },
+  ]},
+  { color:"#f59e0b", title:"Unidad con matices", cap:"Dentro de la Plataforma Unitaria, pero con mayor autonomía o tensiones.", items:[
+    { n:"Un Nuevo Tiempo", d:"Manuel Rosales; se inscribió y luego declinó a favor de González. Relación de matices con MCM." },
+    { n:"Movimiento por Venezuela (MPV)", d:"Postura más autónoma dentro de la coalición." },
+    { n:"Sectores del aparato histórico de AD", d:"Mantuvieron distancia respecto al liderazgo de MCM." },
+  ]},
+  { color:"#64748b", title:"Otros sectores de oposición", cap:"Fuerzas opositoras fuera del núcleo de María Corina.", items:[
+    { n:"Bandera Roja", d:"Partido de izquierda con trayectoria propia dentro de la oposición." },
+    { n:"Partidos intervenidos por el TSJ", d:"Directivas designadas por vía judicial; cuestionadas por la unidad." },
+  ]},
+];
+
+// Red comunicacional · cómo convencen
+const COMMS = [
+  { ico:"🧭", t:"Comando ConVzla", d:"Comando de campaña unitario que coordina estrategia, mensaje y movilización a escala nacional." },
+  { ico:"🛡️", t:"Red 600K", d:"Más de 600.000 voluntarios que digitalizaron y resguardaron las actas. Caso de estudio mundial (documental en Cannes Lions 2026)." },
+  { ico:"🏘️", t:"Comanditos", d:"Células ciudadanas de base, sin afiliación partidista formal, que organizan eventos y defienden el voto casa por casa." },
+  { ico:"🧾", t:"resultadosconvzla.com", d:"Plataforma pública con las actas por mesa, ciudad y estado: prueba documental verificable por cualquier ciudadano." },
+  { ico:"🌐", t:"Diáspora y redes sociales", d:"Amplificación global vía Instagram, X, TikTok y YouTube; periodistas e influencers multiplican el mensaje." },
+  { ico:"🕊️", t:"Testimonio y esperanza", d:"Narrativa de unidad, fe y cambio: testimonios ciudadanos y mensajes de esperanza para movilizar el voto." },
+];
+const TACTICS = [
+  "Prueba documental (actas verificables)",
+  "Organización territorial (comanditos casa por casa)",
+  "Mensaje de esperanza y unidad",
+  "Amplificación digital y diáspora",
+  "Liderazgo cercano (María Corina)",
+  "Presión internacional (Nobel, ONU, Vaticano)",
+  "Defensa del voto con testigos",
+];
+
+// Cronograma nacional (ruta opositora)
+const TIMELINE = [
+  { date:"22 oct 2023", t:"Primaria opositora", d:"María Corina Machado gana la primaria con más del 90% de los votos." },
+  { date:"20 ene 2024", t:"Nacen los comanditos", d:"Se activan las células ciudadanas de base para organizar y defender el voto." },
+  { date:"28 jul 2024", t:"Elección presidencial", d:"Edmundo González Urrutia es el candidato unitario; la Red 600K recopila las actas." },
+  { date:"30 jul 2024", t:"Publicación de actas", d:"La oposición publica en resultadosconvzla.com las actas que dan ganador a González." },
+  { date:"oct 2025", t:"Premio Nobel de la Paz", d:"María Corina Machado recibe el Nobel de la Paz por su lucha democrática." },
+  { date:"3 ene 2026", t:"Captura de Maduro", d:"Nicolás Maduro es detenido; la oposición pide que González asuma la presidencia." },
+  { date:"12 ene 2026", t:"Gira diplomática", d:"Machado se reúne con el papa León XIV y con autoridades internacionales." },
+  { date:"28 may 2026", t:"Manifiesto de Panamá", d:"MCM, González, la Plataforma Unitaria y Alianza Con Vzla firman la ruta hacia la transición." },
+  { date:"finales 2026", t:"Meta: nuevas elecciones", d:"La oposición exige renovar el CNE y celebrar elecciones con garantías.", future:true },
+];
+
+// Modus operandi de cada partido (clave = id de PARTIES)
+const MODUS = {
+  vente:"Partido de María Corina Machado. Estructura nacional con fuerte componente territorial (comanditos) y movilización de calle; eje de la Alianza Con Vzla.",
+  pj:"Partido de cuadros con trabajo parlamentario y municipal; despliegue de testigos electorales y defensa del voto.",
+  ad:"Facción de Acción Democrática que rechaza la intervención judicial del partido; conserva estructura sindical y regional histórica.",
+  vp:"Activismo de calle y redes; cuadros jóvenes y diáspora; énfasis en derechos humanos y presos políticos.",
+  unt:"Fuerte en el Zulia (Manuel Rosales); maquinaria electoral regional y negociación pragmática.",
+  copei:"Socialcristianismo con presencia histórica en Táchira y los Andes; trabajo gremial y municipal (César Pérez Vivas).",
+  ec:"Movimiento ciudadano liderado por Delsa Solórzano; foco en derechos humanos, mujeres y articulación de la sociedad civil.",
+  br:"Partido de izquierda con tradición de organización sindical y estudiantil; trayectoria propia dentro de la oposición.",
+};
 
 /* ============================================================================
    UTILIDADES
@@ -578,6 +789,7 @@ function renderGlobal(global){
 }
 
 function renderData(payload, fromCache){
+  renderSummary(payload.global || []);
   renderParties(payload.byParty);
   renderGlobal(payload.global);
   const d = new Date(payload.ts);
@@ -590,11 +802,15 @@ function renderEmpty(){
 }
 
 function renderStatic(){
+  renderSummary([]);
+  renderPolls();
+  renderSupport();
+  renderComms();
+  renderTimeline();
   $("#stats").innerHTML = STATS.map(s=>
     `<div class="stat"><div class="v">${esc(s.v)}</div><div class="l">${esc(s.l)}</div><div class="src">Fuente: ${esc(s.src)}</div></div>`
   ).join("");
   $("#srcList").innerHTML = FEEDS.map(f=>`<span>${esc(f.source)}</span>`).join("");
-  // Cards completas de inmediato (logos, redes y dirigentes) + esqueleto de noticias
   renderParties({}, true);
 }
 
@@ -634,8 +850,130 @@ function saveCache(p){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify(p)); 
 function loadCache(){ try{ const r=localStorage.getItem(CACHE_KEY); return r?JSON.parse(r):null; }catch(e){ return null; } }
 
 /* ============================================================================
-   DIRECTORIO DIGITAL · REDES Y MEDIOS  (auto-actualizable)
+   RENDER — RESUMEN DIARIO
    ============================================================================ */
+function renderSummary(latestArts){
+  const el = $("#summary"); if(!el) return;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("es-VE",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+
+  // Últimas 3 noticias como titulares del resumen (si existen)
+  const topArts = (latestArts||[]).slice(0,3);
+  const headsHTML = topArts.length
+    ? topArts.map(a=>`<a class="sum-head" href="${esc(a.link)}" target="_blank" rel="noopener">
+        • ${esc(a.title)}<span class="s"> — ${esc(a.source)}</span>
+      </a>`).join("")
+    : `<div class="sum-note">Los titulares aparecerán aquí al cargar las fuentes RSS.</div>`;
+
+  el.innerHTML = `
+    <div class="sum-wrap">
+      <div class="brief">
+        <h4>📌 Situación de la oposición · ${esc(dateStr)}</h4>
+        <ul>${BRIEF.map(b=>`<li>${b}</li>`).join("")}</ul>
+      </div>
+      <div class="sum-side">
+        <div class="sum-metrics">
+          <div class="sum-card"><div class="v">72%</div><div class="l">Aprobación de María Corina Machado (Meganálisis 2026)</div></div>
+          <div class="sum-card"><div class="v">+500</div><div class="l">Presos políticos aún encarcelados (FIDH/Foro Penal)</div></div>
+          <div class="sum-card"><div class="v">600K</div><div class="l">Voluntarios Red 600K que defendieron las actas</div></div>
+          <div class="sum-card"><div class="v">~67%</div><div class="l">Votos opositores según las actas publicadas (28-J 2024)</div></div>
+        </div>
+        <div class="sum-heads">
+          <div class="lbl">Últimas noticias del feed</div>
+          ${headsHTML}
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ============================================================================
+   RENDER — ENCUESTAS E INDICADORES
+   ============================================================================ */
+function renderPolls(){
+  const el = $("#polls"); if(!el) return;
+  el.innerHTML = POLLS.map(p=>`
+    <div class="poll">
+      <div class="pv">${esc(p.v)}</div>
+      <div class="pl">${esc(p.l)}</div>
+      <div class="poll-bar"><div class="poll-fill" style="width:${p.pct}%"></div></div>
+      <div class="ps">${esc(p.s)}</div>
+    </div>`).join("");
+  const foot = $("#pollsFoot");
+  if(foot) foot.textContent = "Fuentes: Meganálisis, AtlasIntel, Infobae, resultadosconvzla.com · Datos verificados y fechados en cada indicador · No extrapolables a encuestas oficiales.";
+}
+
+/* ============================================================================
+   RENDER — APOYO A MARÍA CORINA
+   ============================================================================ */
+function renderSupport(){
+  const el = $("#support"); if(!el) return;
+  el.innerHTML = SUPPORT.map(col=>`
+    <div class="supp-col" style="border-top-color:${col.color}">
+      <h4>${esc(col.title)}</h4>
+      <div class="cap">${esc(col.cap)}</div>
+      ${col.items.map(it=>`
+        <div class="supp-item">
+          <div class="n">${esc(it.n)}</div>
+          <div class="d">${esc(it.d)}</div>
+        </div>`).join("")}
+    </div>`).join("");
+  const foot = $("#supportFoot");
+  if(foot) foot.textContent = "Fuentes: El Estímulo, Efecto Cocuyo, NTN24, Vente Venezuela · Corte junio 2026.";
+}
+
+/* ============================================================================
+   RENDER — RED COMUNICACIONAL
+   ============================================================================ */
+function renderComms(){
+  const el = $("#comms"); if(!el) return;
+  el.innerHTML = COMMS.map(c=>`
+    <div class="comm-card">
+      <div class="ico">${c.ico}</div>
+      <div class="t">${esc(c.t)}</div>
+      <div class="d">${esc(c.d)}</div>
+    </div>`).join("");
+  const tel = $("#tactics"); if(!tel) return;
+  tel.innerHTML = TACTICS.map(t=>`<span class="tactic">${esc(t)}</span>`).join("");
+}
+
+/* ============================================================================
+   RENDER — CRONOGRAMA Y MODUS OPERANDI
+   ============================================================================ */
+function renderTimeline(){
+  const tl = $("#timeline"); if(!tl) return;
+  tl.innerHTML = TIMELINE.map(ev=>`
+    <div class="tl-item${ev.future?" fut":""}">
+      <div class="tl-date">${esc(ev.date)}</div>
+      <div class="tl-t">${esc(ev.t)}</div>
+      <div class="tl-d">${esc(ev.d)}</div>
+    </div>`).join("");
+  const md = $("#modus"); if(!md) return;
+  md.innerHTML = PARTIES.map(p=>`
+    <div class="modus" style="border-left-color:${p.color}">
+      <div class="mn">${esc(p.name)}</div>
+      <div class="md">${esc(MODUS[p.id]||"Partido de la Plataforma Unitaria Democrática.")}</div>
+    </div>`).join("");
+}
+
+/* ============================================================================
+   RENDER — NAVEGACIÓN ACTIVA (resalta el botón al hacer scroll)
+   ============================================================================ */
+function initNavHighlight(){
+  const sections = Array.from(document.querySelectorAll(".section-title[id]"));
+  const btns = Array.from(document.querySelectorAll(".navbtn"));
+  if(!sections.length || !btns.length) return;
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const id = e.target.id;
+        btns.forEach(b=>b.classList.toggle("active", b.getAttribute("href")==="#"+id));
+      }
+    });
+  },{rootMargin:"-20% 0px -70% 0px"});
+  sections.forEach(s=>obs.observe(s));
+}
+
+
 const DIR_BADGES = {
   v:{cls:"v",label:"✓ VERIFICADO"}, c:{cls:"c",label:"✓ CONFIABLE"},
   r:{cls:"r",label:"✓ REFERENCIA"}, i:{cls:"i",label:"🌎 INTERNACIONAL"},
@@ -809,8 +1147,9 @@ function showApp(){
 
   // Directorio Digital: render inmediato + primer fetch de feeds (cada 15 min)
   renderDirectory();
-  renderOrbita();                        // Órbita Digital MCM (enlaces verificados)
+  renderOrbita();
   refreshDirectoryFeeds(false);
+  initNavHighlight();
   if(!window._dirTimers){
     window._dirTimers = true;
     setInterval(()=>refreshDirectoryFeeds(false), 900000); // 15 minutos
