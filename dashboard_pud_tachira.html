@@ -190,9 +190,8 @@
     box-shadow:0 0 14px rgba(34,211,238,.4);
   }
   /* ---- SPA views ---- */
-  .view{display:none}
-  .view.active{display:block;animation:fadeIn .22s ease}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .view{display:none!important}
+  .view.active{display:block!important}
   .view-foot{margin-top:16px;font-size:11px;color:var(--muted2);font-style:italic;padding:0 4px;line-height:1.7;border-top:1px solid var(--border);padding-top:12px}
   .section-title{margin:0 4px 16px}
   .sub-h{font-size:12.5px;font-weight:700;color:var(--muted);margin:18px 4px 10px;letter-spacing:.3px}
@@ -297,12 +296,13 @@
       <span class="pill" id="statusPill"><span class="dot off" id="statusDot"></span><span id="statusTxt">Inicializando…</span></span>
       <span class="pill"><span>⏱</span><span id="countdown" class="mono">--:--</span></span>
       <span class="pill"><span>🕒 Últ.:</span><span id="lastUpdate" class="mono">—</span></span>
+      <span class="pill" style="font-size:10px;color:var(--muted2);padding:5px 9px">v4 · jun 2026</span>
       <button class="btn" id="refreshBtn" style="padding:8px 14px;font-size:13px">↻ Refrescar</button>
       <button class="btn ghost" id="logoutBtn" style="padding:8px 12px;font-size:13px">Salir</button>
     </div>
     <nav class="navbar" aria-label="Navegación del panel">
       <div class="navbar-row">
-        <button class="navbtn" data-view="resumen">📌 Resumen diario</button>
+        <button class="navbtn active" data-view="resumen">📌 Resumen diario</button>
         <button class="navbtn" data-view="stats">📊 Indicadores</button>
         <button class="navbtn" data-view="encuestas">📈 Encuestas</button>
         <button class="navbtn" data-view="apoyo">🗳️ Apoyo MCM</button>
@@ -321,7 +321,7 @@
   <main>
 
     <!-- ── VISTA: RESUMEN DIARIO (predeterminada) ── -->
-    <div class="view" id="view-resumen">
+    <div class="view active" id="view-resumen">
       <div class="section-title"><span class="bar"></span> 📌 Resumen Diario · Cómo va la oposición</div>
       <div id="summary"></div>
       <div class="view-foot">
