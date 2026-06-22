@@ -257,11 +257,13 @@ const REFRESH_MS = 3600000;                              // 1 hora exacta
 const CACHE_KEY  = "pud_tachira_cache_v1";
 const AUTH_KEY   = "pud_tachira_auth_v1";
 
-// Proxies CORS en cascada: allorigins → corsproxy → codetabs → (cache)
+// Proxies CORS XML de respaldo (5 opciones en cascada)
 const PROXIES = [
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
   u => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
+  u => `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(u)}`,
+  u => `https://cors.sh/${u}`,
 ];
 
 // 8 fuentes verificadas (medios opositores establecidos) — feeds RSS públicos
@@ -382,13 +384,42 @@ function timeAgo(d){
 }
 
 /* ============================================================================
-   FETCH RSS + PROXY EN CASCADA
+   FETCH RSS — 3 estrategias en cascada
+   1) rss2json.com  → JSON nativo, CORS resuelto en el servidor (más confiable)
+   2) Proxies XML   → 5 proxies genéricos como respaldo
+   3) null          → usa caché local si existe
    ============================================================================ */
+
+// Estrategia 1: API dedicada rss2json (retorna JSON, sin problemas CORS)
+async function fetchViaRss2json(url){
+  try{
+    const api = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}&count=25`;
+    const ctrl = new AbortController();
+    const t = setTimeout(()=>ctrl.abort(), 15000);
+    const res = await fetch(api, { cache:"no-store", signal:ctrl.signal });
+    clearTimeout(t);
+    if(!res.ok) return null;
+    const json = await res.json();
+    if(json.status !== "ok" || !Array.isArray(json.items) || !json.items.length) return null;
+    return json.items;
+  }catch(e){ return null; }
+}
+function parseRss2jsonItems(items, source){
+  return items.map(it=>({
+    title: (it.title||"").trim(),
+    link: it.link||"",
+    desc: (it.description||"").replace(/<[^>]+>/g,"").trim(),
+    source,
+    date: it.pubDate ? new Date(it.pubDate) : new Date()
+  })).filter(a=>a.title && a.link);
+}
+
+// Estrategia 2: proxies CORS genéricos → devuelve XML como texto
 async function fetchWithProxies(url){
   for(const make of PROXIES){
     try{
       const ctrl = new AbortController();
-      const t = setTimeout(()=>ctrl.abort(), 12000);   // no colgar si un proxy no responde
+      const t = setTimeout(()=>ctrl.abort(), 12000);
       const res = await fetch(make(url), { cache:"no-store", signal:ctrl.signal });
       clearTimeout(t);
       if(!res.ok) continue;
@@ -396,6 +427,15 @@ async function fetchWithProxies(url){
       if(text && text.length>200) return text;
     }catch(e){ /* siguiente proxy */ }
   }
+  return null;
+}
+
+// Función combinada: rss2json → proxies XML → null
+async function fetchFeed(url, source){
+  const jsonItems = await fetchViaRss2json(url);
+  if(jsonItems) return parseRss2jsonItems(jsonItems, source);
+  const xml = await fetchWithProxies(url);
+  if(xml) return parseFeed(xml, source);
   return null;
 }
 
@@ -446,8 +486,8 @@ async function refresh(manual=false){
   if(!navigator.onLine){ goOffline(); return; }
 
   const results = await Promise.allSettled(FEEDS.map(async f=>{
-    const xml = await fetchWithProxies(f.url);
-    return xml ? parseFeed(xml, f.source) : [];
+    const arts = await fetchFeed(f.url, f.source);
+    return arts || [];
   }));
 
   let all = [];
@@ -731,16 +771,16 @@ async function refreshDirectoryFeeds(manual=false){
     const id = slugify(it.plat);
     const statEl = document.getElementById("dirstat-"+id);
     const headEl = document.getElementById("dirfeed-"+id);
-    const xml = navigator.onLine ? await fetchWithProxies(it.feed) : null;
-    if(!xml){
+    const arts = navigator.onLine ? await fetchFeed(it.feed, it.plat) : null;
+    if(!arts || !arts.length){
       if(statEl) statEl.innerHTML = '<span class="sdot off"></span> Sin señal / posible bloqueo';
       if(headEl) headEl.innerHTML = '<div class="dir-empty">No se pudieron cargar titulares ahora.</div>';
       return;
     }
-    const arts = parseFeed(xml, it.plat).sort((a,b)=>b.date-a.date).slice(0,3);
+    const sorted = arts.sort((a,b)=>b.date-a.date).slice(0,3);
     if(statEl) statEl.innerHTML = '<span class="sdot on"></span> En línea';
-    if(headEl) headEl.innerHTML = arts.length
-      ? arts.map(a=>`<a class="dir-head" href="${esc(a.link)}" target="_blank" rel="noopener">• ${esc(a.title)}<span class="dh-date">${fmtDateTime(new Date(a.date))}</span></a>`).join("")
+    if(headEl) headEl.innerHTML = sorted.length
+      ? sorted.map(a=>`<a class="dir-head" href="${esc(a.link)}" target="_blank" rel="noopener">• ${esc(a.title)}<span class="dh-date">${fmtDateTime(new Date(a.date))}</span></a>`).join("")
       : '<div class="dir-empty">Sin titulares recientes.</div>';
   }));
 
