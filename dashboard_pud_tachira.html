@@ -228,6 +228,14 @@
       Algunos medios pueden requerir VPN desde Venezuela.
     </div>
 
+    <!-- ÓRBITA DIGITAL MCM -->
+    <div class="section-title"><span class="bar"></span> 🛰️ Órbita Digital MCM · Táchira</div>
+    <div id="orbita"></div>
+    <div class="dir-foot">
+      Enlaces verificados y activos · corte junio 2026 · Cifras de seguidores aproximadas ·
+      Todos los perfiles marcados ✓ VERIFICADO son cuentas oficiales públicas.
+    </div>
+
     <footer>
       <div><b>Fuentes monitoreadas (RSS públicos):</b></div>
       <div class="src-list" id="srcList"></div>
@@ -624,16 +632,79 @@ const DIRECTORY = [
 let dirLastUpdate = 0;
 const slugify = s => norm(s).replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
 
-function renderDirectory(){
-  $("#directory").innerHTML = DIRECTORY.map(group=>{
+/* ÓRBITA DIGITAL MCM — TÁCHIRA · enlaces verificados (corte jun 2026) */
+const IC = { ig:"📷", x:"𝕏", tk:"🎵", yt:"▶️", web:"🌐" };
+const V = "v";
+const ORBITA = [
+  { cat:"María Corina Machado · Líder principal", items:[
+    { name:"María Corina Machado", plat:"Instagram", icon:IC.ig, handle:"@mariacorinamachado", meta:"9M seguidores", url:"https://www.instagram.com/mariacorinamachado/", badge:V },
+    { name:"María Corina Machado", plat:"X (Twitter)", icon:IC.x, handle:"@MariaCorinaYA", meta:"~6M seguidores", url:"https://x.com/MariaCorinaYA", badge:V },
+  ]},
+  { cat:"Entorno nacional · Estructura opositora", items:[
+    { name:"Edmundo González Urrutia", plat:"Instagram", icon:IC.ig, handle:"@egonzalezurrutia", meta:"3M seguidores", url:"https://www.instagram.com/egonzalezurrutia/", badge:V },
+    { name:"Edmundo González Urrutia", plat:"X (Twitter)", icon:IC.x, handle:"@EdmundoGU", meta:"Cuenta verificada", url:"https://x.com/EdmundoGU", badge:V },
+    { name:"David Smolansky", plat:"Instagram", icon:IC.ig, handle:"@davidsmolansky", meta:"309K seguidores", url:"https://www.instagram.com/davidsmolansky/", badge:V },
+    { name:"David Smolansky", plat:"X (Twitter)", icon:IC.x, handle:"@dsmolansky", meta:"779K seguidores", url:"https://x.com/dsmolansky", badge:V },
+    { name:"Leopoldo López", plat:"Instagram", icon:IC.ig, handle:"@leopoldolopezoficial", meta:"1M seguidores", url:"https://www.instagram.com/leopoldolopezoficial/", badge:V },
+    { name:"Leopoldo López", plat:"X (Twitter)", icon:IC.x, handle:"@leopoldolopez", meta:"Cuenta verificada", url:"https://x.com/leopoldolopez", badge:V },
+    { name:"Henry Alviárez", plat:"Instagram", icon:IC.ig, handle:"@alviarez.henry", meta:"24.5K seguidores", url:"https://www.instagram.com/alviarez.henry/", badge:V },
+    { name:"Henry Alviárez", plat:"X (Twitter)", icon:IC.x, handle:"@HenryAlviarez", meta:"Cuenta verificada", url:"https://x.com/HenryAlviarez", badge:V },
+    { name:"Juan Pablo Guanipa", plat:"Instagram", icon:IC.ig, handle:"@juanpguanipa", meta:"822K seguidores", url:"https://www.instagram.com/juanpguanipa/", badge:V },
+    { name:"Juan Pablo Guanipa", plat:"X (Twitter)", icon:IC.x, handle:"@JuanPGuanipa", meta:"Cuenta verificada", url:"https://x.com/JuanPGuanipa", badge:V },
+    { name:"Freddy Superlano", plat:"Instagram", icon:IC.ig, handle:"@freddysuperlano", meta:"255K seguidores", url:"https://www.instagram.com/freddysuperlano/", badge:V },
+    { name:"Freddy Superlano", plat:"X (Twitter)", icon:IC.x, handle:"@freddysuperlano", meta:"Cuenta verificada", url:"https://x.com/freddysuperlano", badge:V },
+    { name:"Roland Carreño", plat:"Instagram", icon:IC.ig, handle:"@rolandcarreno", meta:"237K seguidores", url:"https://www.instagram.com/rolandcarreno/", badge:V },
+    { name:"Roland Carreño", plat:"X (Twitter)", icon:IC.x, handle:"@rolandcarreno", meta:"Cuenta verificada", url:"https://x.com/rolandcarreno", badge:V },
+    { name:"Biagio Pilieri", plat:"Instagram", icon:IC.ig, handle:"@biagiopilieri", meta:"81K seguidores", url:"https://www.instagram.com/biagiopilieri/", badge:V },
+    { name:"Biagio Pilieri", plat:"X (Twitter)", icon:IC.x, handle:"@BiagPilieri", meta:"Cuenta verificada", url:"https://x.com/BiagPilieri", badge:V },
+  ]},
+  { cat:"Líderes Táchira · Plataforma Unitaria Democrática", items:[
+    { name:"César Pérez Vivas", plat:"Instagram", icon:IC.ig, handle:"@cesarperezvivas", meta:"88K seguidores", url:"https://www.instagram.com/cesarperezvivas/", badge:V },
+    { name:"César Pérez Vivas", plat:"X (Twitter)", icon:IC.x, handle:"@CesarPerezVivas", meta:"Cuenta verificada", url:"https://x.com/CesarPerezVivas", badge:V },
+    { name:"Laidy Gómez", plat:"Instagram", icon:IC.ig, handle:"@laidygomez_1", meta:"153K seguidores", url:"https://www.instagram.com/laidygomez_1/", badge:V },
+    { name:"Laidy Gómez", plat:"X (Twitter)", icon:IC.x, handle:"@laidygomezf", meta:"Cuenta verificada", url:"https://x.com/laidygomezf", badge:V },
+  ]},
+  { cat:"Vente Venezuela · Estructura partidista", items:[
+    { name:"Vente Venezuela", plat:"Instagram", icon:IC.ig, handle:"@ventevenezuela", meta:"1.2M seguidores", url:"https://www.instagram.com/ventevenezuela/", badge:V },
+    { name:"Vente Venezuela", plat:"X (Twitter)", icon:IC.x, handle:"@ventevenezuela", meta:"Cuenta verificada", url:"https://x.com/ventevenezuela", badge:V },
+    { name:"Vente Venezuela", plat:"TikTok", icon:IC.tk, handle:"@ventevenezuela_", meta:"386.4K seguidores", url:"https://www.tiktok.com/@ventevenezuela_", badge:V },
+    { name:"Vente Venezuela", plat:"YouTube", icon:IC.yt, handle:"Vente Venezuela", meta:"Canal oficial", url:"https://www.youtube.com/user/Ventevenezuela", badge:V },
+  ]},
+  { cat:"Periodistas · Cobertura Venezuela", items:[
+    { name:"Carla Angola", plat:"Instagram", icon:IC.ig, handle:"@carlaangola", meta:"4M seguidores", url:"https://www.instagram.com/carlaangola/", badge:V },
+    { name:"Carla Angola", plat:"X (Twitter)", icon:IC.x, handle:"@carlaangola", meta:"Cuenta verificada", url:"https://x.com/carlaangola", badge:V },
+    { name:"Carla Angola", plat:"YouTube", icon:IC.yt, handle:"@carlaangola", meta:"Canal oficial", url:"https://www.youtube.com/@carlaangola", badge:V },
+    { name:"Nitu Pérez Osuna", plat:"Instagram", icon:IC.ig, handle:"@nituperez_", meta:"380K seguidores", url:"https://www.instagram.com/nituperez_/", badge:V },
+    { name:"Nitu Pérez Osuna", plat:"X (Twitter)", icon:IC.x, handle:"@NituPerez", meta:"Cuenta verificada", url:"https://x.com/NituPerez", badge:V },
+  ]},
+  { cat:"Medios digitales Táchira · Independientes", items:[
+    { name:"La Nación Web", plat:"Instagram", icon:IC.ig, handle:"@lanacionweb", meta:"546K seguidores", url:"https://www.instagram.com/lanacionweb/", badge:V },
+    { name:"La Nación Web", plat:"X (Twitter)", icon:IC.x, handle:"@lanacionweb", meta:"Cuenta verificada", url:"https://x.com/lanacionweb", badge:V },
+    { name:"La Nación Web", plat:"Sitio web", icon:IC.web, handle:"lanacionweb.com", meta:"Portal oficial", url:"https://lanacionweb.com/", badge:V },
+    { name:"Diario La Nación", plat:"Instagram", icon:IC.ig, handle:"@diariolanacionve", meta:"166K seguidores", url:"https://www.instagram.com/diariolanacionve/", badge:V },
+    { name:"La Prensa del Táchira", plat:"Instagram", icon:IC.ig, handle:"@laprensatachiraweb", meta:"182K seguidores", url:"https://www.instagram.com/laprensatachiraweb/", badge:V },
+    { name:"Reporte Táchira", plat:"Instagram", icon:IC.ig, handle:"@reporte.tachira", meta:"46K seguidores", url:"https://www.instagram.com/reporte.tachira/", badge:V },
+    { name:"Táchira Reporta", plat:"Instagram", icon:IC.ig, handle:"@tachirareport", meta:"Cuenta verificada", url:"https://www.instagram.com/tachirareport/", badge:V },
+    { name:"Táchira Reporta", plat:"X (Twitter)", icon:IC.x, handle:"@TachiraReporta", meta:"54.7K seguidores", url:"https://x.com/TachiraReporta", badge:V },
+  ]},
+];
+
+function dirCardTop(it){
+  const b = DIR_BADGES[it.badge] || DIR_BADGES.r;
+  const title = it.name || it.plat;                       // nombre de persona/medio si existe
+  const sub   = it.name ? `${it.plat} · ${it.handle}` : it.handle;
+  return `<div class="dir-top">
+      <div class="dir-icon">${it.icon}</div>
+      <div class="dir-id"><div class="dir-plat">${esc(title)}</div><div class="dir-handle">${esc(sub)}</div></div>
+      <span class="dbadge ${b.cls}">${b.label}</span>
+    </div>
+    <div class="dir-meta">${esc(it.meta||"")}</div>`;
+}
+function renderDirInto(data, el){
+  if(!el) return;
+  el.innerHTML = data.map(group=>{
     const cards = group.items.map(it=>{
-      const b = DIR_BADGES[it.badge] || DIR_BADGES.r;
-      const top = `<div class="dir-top">
-          <div class="dir-icon">${it.icon}</div>
-          <div class="dir-id"><div class="dir-plat">${esc(it.plat)}</div><div class="dir-handle">${esc(it.handle)}</div></div>
-          <span class="dbadge ${b.cls}">${b.label}</span>
-        </div>
-        <div class="dir-meta">${esc(it.meta)}</div>`;
+      const top = dirCardTop(it);
       if(it.feed){
         const id = slugify(it.plat);
         return `<div class="dir-card">
@@ -647,6 +718,8 @@ function renderDirectory(){
     return `<div class="dir-cat"><div class="ct">${esc(group.cat)}</div><div class="dir-grid">${cards}</div></div>`;
   }).join("");
 }
+function renderDirectory(){ renderDirInto(DIRECTORY, $("#directory")); }
+function renderOrbita(){ renderDirInto(ORBITA, $("#orbita")); }
 
 async function refreshDirectoryFeeds(manual=false){
   const btn = $("#dirRefreshBtn");
@@ -696,6 +769,7 @@ function showApp(){
 
   // Directorio Digital: render inmediato + primer fetch de feeds (cada 15 min)
   renderDirectory();
+  renderOrbita();                        // Órbita Digital MCM (enlaces verificados)
   refreshDirectoryFeeds(false);
   if(!window._dirTimers){
     window._dirTimers = true;
